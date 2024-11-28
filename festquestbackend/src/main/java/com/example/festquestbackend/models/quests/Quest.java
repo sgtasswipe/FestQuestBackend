@@ -19,7 +19,7 @@ public class  Quest {
     private  String description;
 
     @Column ( nullable = false, length = 1000)
-    private String imgUrl;
+    private String imageUrl;
 
     @Column ( nullable = false)
     private LocalDateTime startTime;
@@ -30,11 +30,11 @@ public class  Quest {
     public Quest() {
 
     }
-    public Quest(long id, String title, String description, String imgUrl, LocalDateTime startTime, LocalDateTime endTime) {
+    public Quest(long id, String title, String description, String imageUrl, LocalDateTime startTime, LocalDateTime endTime) {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.imgUrl = imgUrl;
+        this.imageUrl = imageUrl;
         this.startTime = startTime;
         this.endTime = endTime;
     }
@@ -62,12 +62,12 @@ public class  Quest {
         this.description = description;
     }
 
-    public String getImgUrl() {
-        return imgUrl;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImgUrl(String imgUrl) {
-        this.imgUrl = imgUrl;
+    public void setImageUrl(String imgUrl) {
+        this.imageUrl = imgUrl;
     }
 
     public LocalDateTime getStartTime() {
