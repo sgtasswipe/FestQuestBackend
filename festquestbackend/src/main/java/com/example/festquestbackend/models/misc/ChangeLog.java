@@ -1,0 +1,66 @@
+package com.example.festquestbackend.models.misc;
+
+import com.example.festquestbackend.models.users.User;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "change_logs")
+public class ChangeLog {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "time_stamp", nullable = false)
+    private LocalDateTime timeStamp;
+
+    @Column(name = "change", nullable = false)
+    private String change;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    private User user;
+
+//  Constructor
+    public ChangeLog() {
+    }
+
+    public ChangeLog(User user, LocalDateTime timeStamp, String change) {
+        this.user = user;
+        this.timeStamp = timeStamp;
+        this.change = change;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(LocalDateTime timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
+    public String getChange() {
+        return change;
+    }
+
+    public void setChange(String change) {
+        this.change = change;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+}
