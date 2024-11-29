@@ -10,7 +10,7 @@ class QuestEndToEndTest {
 //    For workflows and components together
 
     @Test
-    public void testCreateQuest() {
+    public void contextLoads() {
 
     }
 }

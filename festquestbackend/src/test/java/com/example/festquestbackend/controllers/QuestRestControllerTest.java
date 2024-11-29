@@ -12,7 +12,7 @@ import java.util.Optional;
 
 import java.time.LocalDateTime;
 
-@WebMvcTest
+@WebMvcTest(QuestRestControllerTest.class)// Controller test.
 class QuestRestControllerTest {
 
     final QuestService questService;

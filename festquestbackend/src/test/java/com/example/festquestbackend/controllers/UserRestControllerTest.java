@@ -9,7 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 import java.util.Optional;
 
-@WebMvcTest
+@WebMvcTest(UserRestControllerTest.class)// Controller test.
 class UserRestControllerTest {
 
 //    private final UserService userService;
