@@ -2,6 +2,8 @@ package com.example.festquestbackend.models.users;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -12,6 +14,9 @@ public class User {
 
     @Column (nullable = false)
     private String firstName;
+
+    @OneToMany(mappedBy = "user")
+    private List<QuestParticipant> questParticipantList;
 
     @Column (nullable = false)
     private String lastName;
@@ -26,12 +31,22 @@ public class User {
     public User () {
 
     }
-    public User(long id, String firstName, String lastName, String email, String password) {
+
+    public User(long id, String firstName, List<QuestParticipant> questParticipantList, String lastName, String email, String password) {
         this.id = id;
         this.firstName = firstName;
+        this.questParticipantList = questParticipantList;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+    }
+
+    public List<QuestParticipant> getQuestParticipantList() {
+        return questParticipantList;
+    }
+
+    public void setQuestParticipantList(List<QuestParticipant> questParticipantList) {
+        this.questParticipantList = questParticipantList;
     }
 
     public long getId() {

@@ -27,4 +27,12 @@ public class UserService {
     }
 
 
+    public User validateUserLogin(String email, String password) {
+
+      User user =   userRepository.findByEmail(email);
+        if (!password.matches(user.getPassword()))
+           throw new IllegalArgumentException("Invaild email or password");
+
+       return user;
+    }
 }

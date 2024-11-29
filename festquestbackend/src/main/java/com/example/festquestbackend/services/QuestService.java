@@ -4,6 +4,7 @@ import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.repositories.QuestRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,11 @@ public class QuestService {
     }
 
     public List<Quest> findAll() {
-        return questRepository.findAll();
+
+        Long userId = getLoggedInUserId();
+        // todo sort quests before returning them
+      //  return questRepository.findAllByUserId(userId);
+        return questRepository.findDistinctByQuestParticipants_UserId(userId);
     }
 
 
@@ -47,15 +52,16 @@ public class QuestService {
 
         if (quest.getStartTime().isBefore(LocalDateTime.now()))
             throw new IllegalArgumentException("Start time cannot be in the past");
-
     }
 
-
-
     public void updateQuest(Quest updatedQuest, Quest existingQuest) {
-      //malger date validation (og måske andet)
+        try {
+            validateDates(updatedQuest);
             BeanUtils.copyProperties(updatedQuest, existingQuest, "id"); //Spring metode der kopierer attributter
             questRepository.save(existingQuest);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void deleteQuest(Quest quest) {

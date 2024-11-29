@@ -1,7 +1,9 @@
 package com.example.festquestbackend.models.quests;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.example.festquestbackend.models.users.QuestParticipant;
 import jakarta.persistence.*;
-
+import java.util.List;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,17 +29,36 @@ public class  Quest {
     @Column ( nullable = false)
     private LocalDateTime endTime;
 
+    @OneToMany(mappedBy = "quest")
+    @JsonBackReference
+    private List<QuestParticipant> questParticipants;
+
+    @OneToMany(mappedBy = "quest", cascade =  CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<SubQuest> subQuestList;
+
     public Quest() {
 
     }
-    public Quest(long id, String title, String description, String imageUrl, LocalDateTime startTime, LocalDateTime endTime) {
+
+    public Quest(long id, String title, String description, String imageUrl, LocalDateTime startTime, LocalDateTime endTime, List<QuestParticipant> questParticipants) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.questParticipants = questParticipants;
     }
+
+    public List<QuestParticipant> getQuestParticipants() {
+        return questParticipants;
+    }
+
+    public void setQuestParticipants(List<QuestParticipant> questParticipants) {
+        this.questParticipants = questParticipants;
+    }
+
     public long getId() {
         return id;
     }
@@ -85,4 +106,13 @@ public class  Quest {
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
+
+    public List<SubQuest> getSubQuestList() {
+        return subQuestList;
+    }
+
+    public void setSubQuestList(List<SubQuest> subQuestList) {
+        this.subQuestList = subQuestList;
+    }
+
 }
