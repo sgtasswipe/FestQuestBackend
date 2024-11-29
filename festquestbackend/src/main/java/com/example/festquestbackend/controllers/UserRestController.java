@@ -21,7 +21,7 @@ public class UserRestController {
         return userService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
-    
+    }
 
     @PostMapping("login")
     public ResponseEntity<String> logIn (@RequestBody User request, HttpSession session) {
