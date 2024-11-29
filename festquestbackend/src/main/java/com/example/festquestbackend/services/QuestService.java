@@ -53,20 +53,9 @@ public class QuestService {
 
 
     public void updateQuest(Quest updatedQuest, Quest existingQuest) {
-/*
-    existingQuest.setTitle(updatedQuest.getTitle());
-    existingQuest.setDescription(updatedQuest.getDescription());
-    existingQuest.setImageUrl(updatedQuest.getImageUrl());
-    existingQuest.setStartTime(updatedQuest.getStartTime());
-    existingQuest.setEndTime(updatedQuest.getEndTime());
-*/
-
-        try {
-            validateDates(updatedQuest);
-            BeanUtils.copyProperties(updatedQuest, existingQuest, "id");
+      //malger date validation (og måske andet)
+            BeanUtils.copyProperties(updatedQuest, existingQuest, "id"); //Spring metode der kopierer attributter
             questRepository.save(existingQuest);
-        } catch (IllegalArgumentException e)
-
     }
 
     public void deleteQuest(Quest quest) {
