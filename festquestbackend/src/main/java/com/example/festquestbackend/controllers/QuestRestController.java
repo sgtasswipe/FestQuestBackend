@@ -1,28 +1,27 @@
 package com.example.festquestbackend.controllers;
 
 import com.example.festquestbackend.models.quests.Quest;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.festquestbackend.services.QuestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.festquestbackend.services.QuestService;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("questboard´")
 
 public class QuestRestController {
-private final QuestService questService;
-public QuestRestController (QuestService questService) {
-    this.questService = questService;
-}
 
+    private final QuestService questService;
+
+    public QuestRestController(QuestService questService) {
+    this.questService = questService;
+    }
 
     @GetMapping("/questboard")
     public List<Quest> getQuestboard() {
       return questService.findAll();
     }
-
-
 
     @GetMapping("/quest/{id}")
     public ResponseEntity<Quest> getQuest(@RequestParam long id) {
@@ -43,7 +42,6 @@ public QuestRestController (QuestService questService) {
 
     }
 
-
     @PostMapping ("/create")
     public ResponseEntity<Quest> createQuest(@RequestBody Quest quest) {
        questService.save(quest);
@@ -56,11 +54,12 @@ public QuestRestController (QuestService questService) {
     return null;
     }
 
-
     @DeleteMapping
     public ResponseEntity<Quest> deleteQuest() {
     return null;
-}
+    }
+
+
 
 
 }

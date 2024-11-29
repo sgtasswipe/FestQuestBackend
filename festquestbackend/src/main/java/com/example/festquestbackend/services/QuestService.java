@@ -1,15 +1,13 @@
 package com.example.festquestbackend.services;
 
 import com.example.festquestbackend.models.quests.Quest;
-import com.example.festquestbackend.repositories.QuestRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.festquestbackend.repositories.quests.QuestRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class QuestService {
@@ -24,11 +22,9 @@ public class QuestService {
         return questRepository.findAll();
     }
 
-
     public Optional<Quest> findById(long id) {
         return questRepository.findById(id);
     }
-
 
     public ResponseEntity<Quest> save(Quest quest) {
   // move responseentity to controller
@@ -42,6 +38,8 @@ public class QuestService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+
 
 
 }
