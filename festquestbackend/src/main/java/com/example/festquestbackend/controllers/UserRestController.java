@@ -21,16 +21,27 @@ public class UserRestController {
         return userService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
-    
+    }
 
-    @PostMapping("login")
-    public ResponseEntity<String> logIn (@RequestBody User request, HttpSession session) {
-        User user = userService.validateUserLogin(request.getEmail(), request.getPassword());
-        if (user != null) {
-            session.setAttribute("userId", user.getId());
-            return ResponseEntity.ok("login successful");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bad credentials");
+        @PostMapping("login")
+        public ResponseEntity<String> logIn (@RequestBody User request, HttpSession session){
+            User user = userService.validateUserLogin(request.getEmail(), request.getPassword());
+            if (user != null) {
+                session.setAttribute("userId", user.getId());
+                return ResponseEntity.ok("login successful");
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bad credentials");
+            }
+        }
+
+    @PostMapping("/signup")
+    public ResponseEntity<String> signup(@RequestBody User user) {
+        try {
+            userService.createUser(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
-}
+    }
+
