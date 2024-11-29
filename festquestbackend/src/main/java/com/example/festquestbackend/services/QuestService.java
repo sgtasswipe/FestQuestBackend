@@ -2,11 +2,13 @@ package com.example.festquestbackend.services;
 
 import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.repositories.QuestRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import java.util.List;
@@ -30,18 +32,44 @@ public class QuestService {
     }
 
 
-    public ResponseEntity<Quest> save(Quest quest) {
-  // move responseentity to controller
-        // add logic to prevent date in past as start time
-        // prevent end time to be before starttime
+    public Optional<Quest> save(Quest quest) {
         try {
-            Quest savedQuest = questRepository.save(quest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedQuest);
-        }
-        catch (Exception e) {  //todo global exception handling?
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            validateDates(quest);
+            return Optional.of(questRepository.save(quest));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
         }
     }
 
+    public void validateDates(Quest quest) {
+        if (quest.getEndTime() != null && quest.getStartTime().isAfter(quest.getEndTime()))
+            throw new IllegalArgumentException("End date must be before start date");
 
+        if (quest.getStartTime().isBefore(LocalDateTime.now()))
+            throw new IllegalArgumentException("Start time cannot be in the past");
+
+    }
+
+
+
+    public void updateQuest(Quest updatedQuest, Quest existingQuest) {
+/*
+    existingQuest.setTitle(updatedQuest.getTitle());
+    existingQuest.setDescription(updatedQuest.getDescription());
+    existingQuest.setImageUrl(updatedQuest.getImageUrl());
+    existingQuest.setStartTime(updatedQuest.getStartTime());
+    existingQuest.setEndTime(updatedQuest.getEndTime());
+*/
+
+        try {
+            validateDates(updatedQuest);
+            BeanUtils.copyProperties(updatedQuest, existingQuest, "id");
+            questRepository.save(existingQuest);
+        } catch (IllegalArgumentException e)
+
+    }
+
+    public void deleteQuest(Quest quest) {
+        questRepository.delete(quest);
+    }
 }

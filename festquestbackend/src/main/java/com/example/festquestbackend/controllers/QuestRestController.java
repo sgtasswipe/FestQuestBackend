@@ -2,13 +2,15 @@ package com.example.festquestbackend.controllers;
 
 import com.example.festquestbackend.models.quests.Quest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.festquestbackend.services.QuestService;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("questboard´")
+@RequestMapping("/questboard´")
 
 public class QuestRestController {
 private final QuestService questService;
@@ -19,6 +21,7 @@ public QuestRestController (QuestService questService) {
 
     @GetMapping("/questboard")
     public List<Quest> getQuestboard() {
+
       return questService.findAll();
     }
 
@@ -43,26 +46,44 @@ public QuestRestController (QuestService questService) {
 
     }
 
-
+ /*
     @PostMapping ("/create")
     public ResponseEntity<Quest> createQuest(@RequestBody Quest quest) {
-       questService.save(quest);
-       //todo fix
-        return null;
+        try {
+            Optional<Quest> savedQuest = questService.save(quest);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedQuest.get());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    } */
+    @PostMapping("/create")
+    public ResponseEntity<Quest> createQuestFunc ( @RequestBody Quest quest) {
+    return questService.save(quest).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PutMapping
-    public ResponseEntity<Quest> updateQuest() {
-    return null;
+    @PutMapping ("/quest/{id}")
+    public ResponseEntity<Quest> updateQuest(@PathVariable long id, @RequestBody Quest updatedQuest) {
+        return questService.findById(id)
+                .map(existingQuest -> {
+                    questService.updateQuest(updatedQuest, existingQuest);
+                    return ResponseEntity.ok(updatedQuest);
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
 
-    @DeleteMapping
-    public ResponseEntity<Quest> deleteQuest() {
-    return null;
-}
+    @DeleteMapping("/quest/{id}")
+    public ResponseEntity<String> deleteQuest(@PathVariable long id) {
+        Optional<Quest> optionalQuest = questService.findById(id);
 
-
+        if (optionalQuest.isPresent()) {
+            questService.deleteQuest(optionalQuest.get());
+            return ResponseEntity.ok("Quest deleted");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Quest not found");
+        }
+    }
 }
 
 
