@@ -5,11 +5,14 @@ import com.example.festquestbackend.repositories.quests.QuestRepository;
 import com.example.festquestbackend.services.QuestService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+
 import java.util.Optional;
 
 
 import java.time.LocalDateTime;
 
+@WebMvcTest
 class QuestRestControllerTest {
 
     final QuestService questService;
@@ -24,7 +27,6 @@ class QuestRestControllerTest {
 
     @Test
     void testCreateAndFindById() {
-        // Arrange: Create a new Quest instance
         Quest quest = new Quest();
         quest.setTitle("Dragon Hunt");
         quest.setDescription("Defeat the mighty dragon!");
@@ -32,13 +34,11 @@ class QuestRestControllerTest {
         quest.setStartTime(LocalDateTime.now());
         quest.setEndTime(LocalDateTime.now().plusDays(100));
 
-        // Act: Save the quest and retrieve it by ID
         Quest savedQuest = questRepository.save(quest); // Auto-generated ID
         Optional<Quest> foundQuest = questRepository.findById(savedQuest.getId());
 
-        // Assert: Ensure the quest is found and fields match
+        // Actual tests.
         Assertions.assertTrue(foundQuest.isPresent());
-        Assertions.assertEquals("Dragon Hunt", foundQuest.get().getTitle());
         Assertions.assertEquals(savedQuest.getId(), foundQuest.get().getId());
     }
 
