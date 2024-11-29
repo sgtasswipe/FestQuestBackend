@@ -6,7 +6,7 @@ import com.example.festquestbackend.models.quests.Quest;
 
 @Repository
 public interface QuestRepository extends JpaRepository<Quest, Long> {
-
+// TODO Should we make a generic repo and extend it to reduce redundancy?
 
 
 }
