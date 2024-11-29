@@ -5,6 +5,7 @@ import com.example.festquestbackend.repositories.quests.QuestRepository;
 import com.example.festquestbackend.services.QuestService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 import java.util.Optional;
@@ -15,15 +16,13 @@ import java.time.LocalDateTime;
 @WebMvcTest(QuestRestControllerTest.class)// Controller test.
 class QuestRestControllerTest {
 
-    final QuestService questService;
-    final QuestRepository questRepository;
+    @Autowired
+    private QuestService questService;
+
+    @Autowired
+    private QuestRepository questRepository;
 
 //    To validate HTTP endpoints, request handling, and status codes. + integrati
-
-    public QuestRestControllerTest(QuestService questService, QuestRepository questRepository){
-        this.questService = questService;
-        this.questRepository = questRepository;
-    }
 
     @Test
     void testCreateAndFindById() {
