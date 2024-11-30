@@ -2,6 +2,7 @@ package com.example.festquestbackend.models.quests;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.example.festquestbackend.models.users.QuestParticipant;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 import java.time.LocalDateTime;
@@ -28,13 +29,14 @@ public class  Quest {
 
     @Column ( nullable = false)
     private LocalDateTime endTime;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "quest")
     @JsonBackReference
     private List<QuestParticipant> questParticipants;
 
     @OneToMany(mappedBy = "quest", cascade =  CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
+    @JsonIgnore
     private List<SubQuest> subQuestList;
 
     public Quest() {

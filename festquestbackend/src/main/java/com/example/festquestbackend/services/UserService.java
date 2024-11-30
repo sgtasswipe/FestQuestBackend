@@ -2,10 +2,11 @@ package com.example.festquestbackend.services;
 
 import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.models.users.User;
-import com.example.festquestbackend.repositories.quests.QuestRepository;
+
 import com.example.festquestbackend.repositories.users.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

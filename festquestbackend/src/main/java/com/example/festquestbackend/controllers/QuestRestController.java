@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/questboard´")
+@RequestMapping("/questboard")
 
 public class QuestRestController {
 private final QuestService questService;

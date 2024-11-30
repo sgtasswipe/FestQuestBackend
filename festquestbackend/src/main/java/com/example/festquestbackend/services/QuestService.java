@@ -25,10 +25,10 @@ public class QuestService {
 
     public List<Quest> findAll() {
 
-        Long userId = getLoggedInUserId();
+        //Long userId = getLoggedInUserId();
         // todo sort quests before returning them
       //  return questRepository.findAllByUserId(userId);
-        return questRepository.findDistinctByQuestParticipants_UserId(userId);
+      return questRepository.findDistinctByQuestParticipants_UserId(1L);
     }
 
 
