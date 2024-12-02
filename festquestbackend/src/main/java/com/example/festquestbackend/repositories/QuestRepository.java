@@ -16,8 +16,8 @@ public interface QuestRepository extends JpaRepository<Quest, Long> {
 
 
         @Query("SELECT q FROM Quest q JOIN q.questParticipants qp WHERE qp.user.id = :userId")
-        List<Quest> findAllByUserId(@Param("userId") Long userId);
+        List<Quest> findAllQuestByUserId(@Param("userId") Long userId);
     List<Quest> findDistinctByQuestParticipants_UserId(Long userId);  // Methods does the same, depends on if we want to use JPQL
-
+    // This method find all quests from a given user id
 }
 

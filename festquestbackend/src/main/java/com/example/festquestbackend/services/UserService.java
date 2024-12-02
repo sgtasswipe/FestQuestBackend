@@ -39,4 +39,9 @@ public class UserService {
     public void createUser(User user) {
         userRepository.save(user);
     }
+
+    public Long getLoggedInUser(User user) {
+         // todo find user id from session
+        return userRepository.findById(user.getId()).get().getId();
+    }
 }
