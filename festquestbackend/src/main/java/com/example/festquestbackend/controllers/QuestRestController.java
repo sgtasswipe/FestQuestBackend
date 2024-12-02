@@ -9,6 +9,7 @@ import com.example.festquestbackend.services.QuestService;
 import java.util.List;
 import java.util.Optional;
 
+// Controller
 @RestController
 @RequestMapping("/questboard")
 
