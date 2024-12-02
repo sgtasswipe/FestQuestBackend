@@ -1,12 +1,12 @@
 package com.example.festquestbackend.services;
 
-import com.example.festquestbackend.models.quests.Quest;
-import com.example.festquestbackend.repositories.QuestRepository;
-import jakarta.persistence.Column;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.stereotype.Component;
+
+import com.example.festquestbackend.models.quests.Quest;
+import com.example.festquestbackend.repositories.quests.QuestRepository;
 
 import java.time.LocalDateTime;
 

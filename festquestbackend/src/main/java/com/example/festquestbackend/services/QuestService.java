@@ -1,20 +1,16 @@
 package com.example.festquestbackend.services;
 
-import com.example.festquestbackend.models.quests.Quest;
-import com.example.festquestbackend.repositories.QuestRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+import com.example.festquestbackend.models.quests.Quest;
+import com.example.festquestbackend.repositories.quests.QuestRepository;
 
 @Service
 public class QuestService {
-
     private final QuestRepository questRepository;
 
     public QuestService(QuestRepository questRepository) {
@@ -36,18 +32,22 @@ public class QuestService {
     public Optional<Quest> save(Quest quest) {
         try {
             validateDates(quest);
-            return Optional.of(questRepository.save(quest));
-        } catch (IllegalArgumentException e) {
-            return Optional.empty();
+            Quest savedQuest = questRepository.save(quest);
+            return Optional.of(savedQuest);
+        } catch (Exception e) {
+            System.err.println("Error saving quest: " + e.getMessage());
+            throw e; // Re-throw to be caught by controller
         }
     }
 
     public void validateDates(Quest quest) {
-        if (quest.getEndTime() != null && quest.getStartTime().isAfter(quest.getEndTime()))
-            throw new IllegalArgumentException("End date must be before start date");
-
-        if (quest.getStartTime().isBefore(LocalDateTime.now()))
-            throw new IllegalArgumentException("Start time cannot be in the past");
+        if (quest.getEndTime() != null && quest.getStartTime().isAfter(quest.getEndTime())) {
+            throw new IllegalArgumentException("End time must be after start time");
+        }
+        // Remove past date validation for now (or keep if required)
+        // if (quest.getStartTime().isBefore(LocalDateTime.now())) {
+        //     throw new IllegalArgumentException("Start time cannot be in the past");
+        // }
     }
 
     public void updateQuest(Quest updatedQuest, Quest existingQuest) {
