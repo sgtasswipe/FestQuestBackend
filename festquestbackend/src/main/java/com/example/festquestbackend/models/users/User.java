@@ -1,5 +1,7 @@
 package com.example.festquestbackend.models.users;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -8,27 +10,27 @@ import java.util.List;
 @Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
-    @Column (nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private long id;
 
-    @Column (nullable = false)
+    @Column(nullable = false)
     private String firstName;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<QuestParticipant> questParticipantList;
 
-    @Column (nullable = false)
+    @Column(nullable = false)
     private String lastName;
 
-    @Column (nullable = false,  unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column (nullable = false)
+    @Column(nullable = false)
     private String password;
 
 
-    public User () {
+    public User() {
 
     }
 

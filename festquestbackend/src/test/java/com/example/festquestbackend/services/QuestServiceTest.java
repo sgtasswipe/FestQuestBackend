@@ -2,10 +2,8 @@ package com.example.festquestbackend.services;
 
 import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.repositories.QuestRepository;
-import jakarta.persistence.Column;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -21,7 +19,7 @@ class QuestServiceTest {
     @Test
     public void testCorrectDatesNotThrowsFromDb() {
         Quest quest = questService.findById(1).get();
-        assertDoesNotThrow( () -> questService.validateDates(quest));
+        assertDoesNotThrow( () -> questService.validateQuestDates(quest));
     }
 
     @Test
@@ -29,13 +27,13 @@ class QuestServiceTest {
         Quest quest = new Quest();
         quest.setStartTime(LocalDateTime.now().plusDays(1));
         quest.setEndTime(LocalDateTime.now().plusDays(3));
-        assertDoesNotThrow( () -> questService.validateDates(quest));
+        assertDoesNotThrow( () -> questService.validateQuestDates(quest));
     }
     @Test
     public void testIncorrectDatesThrowsException () {
         Quest quest = new Quest();
         quest.setEndTime(LocalDateTime.now().plusDays(1));
         quest.setStartTime(LocalDateTime.now().plusDays(2));
-        assertThrows( IllegalArgumentException.class , () -> questService.validateDates(quest));
+        assertThrows( IllegalArgumentException.class , () -> questService.validateQuestDates(quest));
     }
 }

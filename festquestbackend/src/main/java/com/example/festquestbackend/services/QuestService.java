@@ -3,10 +3,6 @@ package com.example.festquestbackend.services;
 import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.repositories.QuestRepository;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,17 +14,18 @@ import java.util.List;
 public class QuestService {
 
     private final QuestRepository questRepository;
-
-    public QuestService(QuestRepository questRepository) {
+    private final UserService userService;
+    public QuestService(QuestRepository questRepository, UserService userService) {
         this.questRepository = questRepository;
+        this.userService = userService;
     }
 
     public List<Quest> findAll() {
 
-        Long userId = getLoggedInUserId();
+       //  Long userId =  userService.getLoggedInUser();
         // todo sort quests before returning them
       //  return questRepository.findAllByUserId(userId);
-        return questRepository.findDistinctByQuestParticipants_UserId(userId);
+      return questRepository.findDistinctByQuestParticipants_UserId(1L);  // hard-coded for now, will have to figure out how to retrieve user from session
     }
 
 
@@ -39,14 +36,14 @@ public class QuestService {
 
     public Optional<Quest> save(Quest quest) {
         try {
-            validateDates(quest);
+            validateQuestDates(quest);
             return Optional.of(questRepository.save(quest));
         } catch (IllegalArgumentException e) {
             return Optional.empty();
         }
     }
 
-    public void validateDates(Quest quest) {
+    public void validateQuestDates(Quest quest) {
         if (quest.getEndTime() != null && quest.getStartTime().isAfter(quest.getEndTime()))
             throw new IllegalArgumentException("End date must be before start date");
 
@@ -56,7 +53,7 @@ public class QuestService {
 
     public void updateQuest(Quest updatedQuest, Quest existingQuest) {
         try {
-            validateDates(updatedQuest);
+            validateQuestDates(updatedQuest);
             BeanUtils.copyProperties(updatedQuest, existingQuest, "id"); //Spring metode der kopierer attributter
             questRepository.save(existingQuest);
         } catch (IllegalArgumentException e) {

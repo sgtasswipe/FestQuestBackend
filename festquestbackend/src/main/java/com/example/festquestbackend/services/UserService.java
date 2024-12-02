@@ -2,10 +2,11 @@ package com.example.festquestbackend.services;
 
 import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.models.users.User;
-import com.example.festquestbackend.repositories.quests.QuestRepository;
+
 import com.example.festquestbackend.repositories.users.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,11 +29,19 @@ public class UserService {
 
 
     public User validateUserLogin(String email, String password) {
-
-      User user =   userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email);
         if (!password.matches(user.getPassword()))
-           throw new IllegalArgumentException("Invaild email or password");
+            throw new IllegalArgumentException("Invaild email or password");
 
-       return user;
+        return user;
+    }
+
+    public void createUser(User user) {
+        userRepository.save(user);
+    }
+
+    public Long getLoggedInUser(User user) {
+         // todo find user id from session
+        return userRepository.findById(user.getId()).get().getId();
     }
 }
