@@ -1,6 +1,7 @@
 package com.example.festquestbackend.models.users;
 
 import com.example.festquestbackend.models.quests.Quest;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -19,7 +20,7 @@ public class QuestParticipant {
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
-
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "quest_id", referencedColumnName = "id", nullable = false)
     private Quest quest;
@@ -27,7 +28,7 @@ public class QuestParticipant {
     @Column(nullable = false)
     private boolean isGoing;
 
-    public QuestParticipant () {
+    public QuestParticipant() {
 
     }
 
