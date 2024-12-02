@@ -1,5 +1,6 @@
-package com.example.festquestbackend.repositories;
+package com.example.festquestbackend.repositories.quests;
 
+import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.festquestbackend.models.quests.Quest;
 import org.springframework.data.jpa.repository.Query;
@@ -9,11 +10,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+
 @Repository
 public interface QuestRepository extends JpaRepository<Quest, Long> {
-    Optional<Quest> findQuestsById(Long id);
-// JpaRepository eller CrudRepository??
-
+// TODO Should we make a generic repo and extend it to reduce redundancy?
 
         @Query("SELECT q FROM Quest q JOIN q.questParticipants qp WHERE qp.user.id = :userId")
         List<Quest> findAllQuestByUserId(@Param("userId") Long userId);

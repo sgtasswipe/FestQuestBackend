@@ -1,11 +1,15 @@
 package com.example.festquestbackend.controllers;
 
 import com.example.festquestbackend.models.quests.Quest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+
+import com.example.festquestbackend.services.QuestService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.festquestbackend.services.QuestService;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -14,15 +18,20 @@ import java.util.Optional;
 @RequestMapping("/questboard")
 
 public class QuestRestController {
-private final QuestService questService;
-public QuestRestController (QuestService questService) {
+
+
+
+    private final QuestService questService;
+
+    public QuestRestController(QuestService questService) {
     this.questService = questService;
-}
+    }
 
     @GetMapping("/quests")
     public List<Quest> getQuestboard() {
       return questService.findAll();
     }
+
 
 
     @GetMapping("/quest/{id}")
@@ -33,10 +42,13 @@ public QuestRestController (QuestService questService) {
     }
 
 
+
     @PostMapping("/quest")
     public ResponseEntity<Quest> createQuestFunc ( @RequestBody Quest quest) {
     return questService.save(quest).map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.notFound().build());
+
+
     }
 
     @PutMapping ("/quest/{id}")
@@ -48,7 +60,6 @@ public QuestRestController (QuestService questService) {
                 }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-
     @DeleteMapping("/quest/{id}")
     public ResponseEntity<Quest> deleteQuest(@PathVariable long id) {
         return questService.findById(id)
@@ -57,6 +68,7 @@ public QuestRestController (QuestService questService) {
                     return ResponseEntity.ok(quest);
                 }).orElseGet( () -> ResponseEntity.notFound().build() );
     }
+
 }
 
 

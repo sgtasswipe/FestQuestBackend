@@ -2,15 +2,22 @@ package com.example.festquestbackend.controllers;
 
 import com.example.festquestbackend.models.users.User;
 import com.example.festquestbackend.services.UserService;
+
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @CrossOrigin(origins = "*")
+
+
+
 
 @RestController
 public class UserRestController {
@@ -27,6 +34,7 @@ public class UserRestController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<String> logIn(@RequestBody Map<String, String> request, HttpSession session) {
@@ -54,4 +62,5 @@ public class UserRestController {
         }
     }
     }
+
 

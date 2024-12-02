@@ -1,14 +1,23 @@
 package com.example.festquestbackend.services;
 
 import com.example.festquestbackend.models.quests.Quest;
-import com.example.festquestbackend.repositories.QuestRepository;
+
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+
+import com.example.festquestbackend.repositories.quests.QuestRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class QuestService {
@@ -28,13 +37,18 @@ public class QuestService {
       return questRepository.findDistinctByQuestParticipants_UserId(1L);  // hard-coded for now, will have to figure out how to retrieve user from session
     }
 
-
     public Optional<Quest> findById(long id) {
         return questRepository.findById(id);
     }
 
 
+
+
     public Optional<Quest> save(Quest quest) {
+  // move responseentity to controller
+        // add logic to prevent date in past as start time
+        // prevent end time to be before starttime
+
         try {
             validateQuestDates(quest);
             return Optional.of(questRepository.save(quest));
@@ -46,6 +60,7 @@ public class QuestService {
     public void validateQuestDates(Quest quest) {
         if (quest.getEndTime() != null && quest.getStartTime().isAfter(quest.getEndTime()))
             throw new IllegalArgumentException("End date must be before start date");
+
 
         if (quest.getStartTime().isBefore(LocalDateTime.now()))
             throw new IllegalArgumentException("Start time cannot be in the past");
@@ -64,4 +79,5 @@ public class QuestService {
     public void deleteQuest(Quest quest) {
         questRepository.delete(quest);
     }
+
 }
