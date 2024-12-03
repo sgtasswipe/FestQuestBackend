@@ -21,7 +21,7 @@ public class UserRestController {
         this.userService = userService;
     }
 
-    @GetMapping("/user/{id}") // TODO User or Users here?
+    @GetMapping("/user/{id}")
     public ResponseEntity<User> getUser(@RequestParam long id) {
         return userService.findById(id)
                 .map(ResponseEntity::ok)
