@@ -2,7 +2,6 @@ package com.example.festquestbackend.services;
 
 import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.models.users.QuestParticipant;
-import com.example.festquestbackend.repositories.QuestRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
