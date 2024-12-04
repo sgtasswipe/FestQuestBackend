@@ -20,9 +20,10 @@ public class QuestParticipant {
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
-    @JsonBackReference
+
     @ManyToOne
     @JoinColumn(name = "quest_id", referencedColumnName = "id", nullable = false)
+    @JsonBackReference
     private Quest quest;
 
     @Column(nullable = false)
