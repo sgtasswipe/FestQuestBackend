@@ -24,7 +24,6 @@ import com.example.festquestbackend.services.QuestService;
 @RequestMapping("/questboard")
 
 public class QuestRestController {
-
     private final QuestService questService;
 
     @Autowired
@@ -44,7 +43,6 @@ public class QuestRestController {
                 .map(ResponseEntity::ok).
                 orElseGet(() -> ResponseEntity.notFound().build());
     }
-
 
     @PostMapping("/quest")
     public ResponseEntity<?> createQuestFunc(@RequestBody Quest quest) {

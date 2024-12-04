@@ -16,9 +16,17 @@ import com.example.festquestbackend.models.users.User;
 import com.example.festquestbackend.services.UserService;
 
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import java.util.Map;
 
 @CrossOrigin(origins = "*")
-
 @RestController
 public class UserRestController {
 
@@ -28,14 +36,14 @@ public class UserRestController {
         this.userService = userService;
     }
 
-    @GetMapping("/user/{id}") // TODO User or Users here?
+    @GetMapping("/user/{id}")
     public ResponseEntity<User> getUser(@RequestParam long id) {
         return userService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/login")
+   @PostMapping("/login")
     public ResponseEntity<String> logIn(@RequestBody Map<String, String> request, HttpSession session) {
         String email = request.get("email");
         String password = request.get("password");
@@ -60,5 +68,5 @@ public class UserRestController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
-    }
-
+}
+    
