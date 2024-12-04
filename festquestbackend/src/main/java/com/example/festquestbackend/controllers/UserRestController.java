@@ -8,6 +8,7 @@ import com.example.festquestbackend.util.SecurityConstants;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -61,14 +62,16 @@ public class UserRestController {
         return null;
     }
     @PostMapping("/dologin")
-    public ResponseEntity<String> doLogin(@RequestBody Map<String, String> request) {
+    public ResponseEntity<String> doLogin(@RequestBody Map<String, String> request, HttpServletResponse response) {
         String email = request.get("email");
         String password = request.get("password");
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
         if (authentication.isAuthenticated()) {
-           //FestUser festUser = festUserService.findByEmail(email);
-            return ResponseEntity.ok(jwtGenerator(email));
+           FestUser festUser = festUserService.findByEmail(email);
+            String token = jwtGenerator(email);
+            response.setHeader("Authorization", token);
+            return ResponseEntity.ok("Login successful");
         } else {
             throw new UsernameNotFoundException("invalid user request..!!");
         }
