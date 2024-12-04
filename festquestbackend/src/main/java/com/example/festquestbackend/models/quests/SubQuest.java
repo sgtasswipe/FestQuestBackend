@@ -1,6 +1,9 @@
 package com.example.festquestbackend.models.quests;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table ( name = "sub_quests")
@@ -20,9 +23,14 @@ public class SubQuest {
     @Column ( nullable = false)
     private Double budget;
 
+    @OneToMany(mappedBy = "subQuest", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<Duty> dutyList;
+
     public SubQuest () {
 
     }
+
     public SubQuest(long id, Quest quest, String title, Double budget) {
         this.id = id;
         this.quest = quest;
@@ -60,5 +68,13 @@ public class SubQuest {
 
     public void setBudget(Double budget) {
         this.budget = budget;
+    }
+
+    public List<Duty> getDutyList() {
+        return dutyList;
+    }
+
+    public void setDutyList(List<Duty> dutyList) {
+        this.dutyList = dutyList;
     }
 }
