@@ -13,7 +13,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOriginPatterns("*")  // Changed from allowedOrigins to allowedOriginPatterns
+                        .allowedOrigins("http://127.0.0.1:5500", "http://localhost:5500") // Add Live Server default ports
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true)
@@ -22,5 +22,3 @@ public class CorsConfig {
         };
     }
 }
-
-

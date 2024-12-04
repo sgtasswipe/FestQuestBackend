@@ -16,18 +16,9 @@ import com.example.festquestbackend.models.users.User;
 import com.example.festquestbackend.services.UserService;
 
 import jakarta.servlet.http.HttpSession;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.Map;
 
-@CrossOrigin(origins = "*")
 @RestController
+@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"}, allowCredentials = "true")
 public class UserRestController {
 
     private final UserService userService;
@@ -44,18 +35,18 @@ public class UserRestController {
     }
 
    @PostMapping("/login")
-    public ResponseEntity<String> logIn(@RequestBody Map<String, String> request, HttpSession session) {
-        String email = request.get("email");
-        String password = request.get("password");
+   public ResponseEntity<User> logIn(@RequestBody Map<String, String> request, HttpSession session) {
+    String email = request.get("email");
+    String password = request.get("password");
 
-        try {
-            User user = userService.validateUserLogin(email, password);
-            session.setAttribute("userId", user.getId());
-            return ResponseEntity.ok("Login successful");
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bad credentials");
-        }
+    try {
+        User user = userService.validateUserLogin(email, password);
+        session.setAttribute("userId", user.getId());
+        return ResponseEntity.ok(user);  // Return the user object instead of just a string
+    } catch (IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+}
 
 
     @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -69,4 +60,3 @@ public class UserRestController {
         }
     }
 }
-    

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.festquestbackend.models.quests.Quest;
@@ -22,7 +22,7 @@ import com.example.festquestbackend.services.QuestService;
 // Controller
 @RestController
 @RequestMapping("/questboard")
-
+@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"}, allowCredentials = "true")
 public class QuestRestController {
     private final QuestService questService;
 
@@ -38,10 +38,10 @@ public class QuestRestController {
 
 
     @GetMapping("/quest/{id}")
-    public ResponseEntity<Quest> getQuest(@RequestParam long id) {
+    public ResponseEntity<Quest> getQuest(@PathVariable long id) {
         return questService.findById(id)
-                .map(ResponseEntity::ok).
-                orElseGet(() -> ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/quest")
@@ -75,5 +75,11 @@ public class QuestRestController {
                     questService.deleteQuest(quest);
                     return ResponseEntity.ok(quest);
                 }).orElseGet( () -> ResponseEntity.notFound().build() );
+    }
+
+    @GetMapping("/quests/{userId}")
+    public ResponseEntity<List<Quest>> getQuestsForUser(@PathVariable Long userId) {
+        List<Quest> quests = questService.findAllForUser(userId);
+        return ResponseEntity.ok(quests);
     }
 }

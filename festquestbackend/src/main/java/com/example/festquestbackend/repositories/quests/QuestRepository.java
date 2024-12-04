@@ -9,18 +9,20 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.example.festquestbackend.models.quests.Quest;
+
 @Repository
 public interface QuestRepository extends JpaRepository<Quest, Long> {
-    Optional<Quest> findQuestsById(Long id);
-// JpaRepository eller CrudRepository??
+    Optional<Quest> findById(Long id);
+    // JpaRepository eller CrudRepository??
 
+    @Query("""
+        SELECT DISTINCT q FROM Quest q 
+        JOIN q.questParticipants qp 
+        WHERE qp.user.id = :userId 
+        AND qp.isGoing = true 
+        ORDER BY q.startTime ASC
+        """)
+    List<Quest> findActiveQuestsByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT q FROM Quest q JOIN q.questParticipants qp WHERE qp.user.id = :userId")
-    List<Quest> findAllQuestByUserId(@Param("userId") Long userId);
-    List<Quest> findDistinctByQuestParticipants_UserId(Long userId);  // Methods does the same, depends on if we want to use JPQL
-    // This method find all quests from a given user id
-
-    // Retrieves distinct quests for a given user ID, sorted by start time in ascending order
     List<Quest> findDistinctByQuestParticipants_UserIdOrderByStartTimeAsc(Long userId);
 }
-
