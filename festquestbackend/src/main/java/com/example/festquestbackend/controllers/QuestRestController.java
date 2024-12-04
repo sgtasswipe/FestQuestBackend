@@ -69,12 +69,19 @@ public class QuestRestController {
     }
 
     @DeleteMapping("/quest/{id}")
-    public ResponseEntity<Quest> deleteQuest(@PathVariable long id) {
-        return questService.findById(id)
+    public ResponseEntity<?> deleteQuest(@PathVariable long id) {
+        try {
+            return questService.findById(id)
                 .map(quest -> {
                     questService.deleteQuest(quest);
-                    return ResponseEntity.ok(quest);
-                }).orElseGet( () -> ResponseEntity.notFound().build() );
+                    return ResponseEntity.ok().build();
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error deleting quest: " + e.getMessage());
+        }
     }
 
     @GetMapping("/quests/{userId}")

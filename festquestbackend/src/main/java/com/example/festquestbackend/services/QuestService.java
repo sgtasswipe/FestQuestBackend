@@ -9,9 +9,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.example.festquestbackend.models.quests.Quest;
+import com.example.festquestbackend.models.quests.SubQuest;
 import com.example.festquestbackend.models.users.QuestParticipant;
 import com.example.festquestbackend.models.users.User;
 import com.example.festquestbackend.repositories.quests.QuestRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class QuestService {
@@ -98,14 +101,32 @@ public class QuestService {
     public void updateQuest(Quest updatedQuest, Quest existingQuest) {
         try {
             validateQuestDates(updatedQuest);
-            BeanUtils.copyProperties(updatedQuest, existingQuest, "id"); //Spring metode der kopierer attributter
+            
+            // Save the existing subQuestList
+            List<SubQuest> existingSubQuests = existingQuest.getSubQuestList();
+            
+            // Copy properties excluding id and relationships
+            BeanUtils.copyProperties(updatedQuest, existingQuest, "id", "subQuestList", "questParticipants");
+            
+            // Restore the subQuestList
+            existingQuest.setSubQuestList(existingSubQuests);
+            
             questRepository.save(existingQuest);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
+            throw e;
         }
     }
 
+    @Transactional
     public void deleteQuest(Quest quest) {
-        questRepository.delete(quest);
+        try {
+            // Clear relationships to ensure clean deletion
+            quest.getQuestParticipants().clear();
+            quest.getSubQuestList().clear();
+            questRepository.delete(quest);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete quest: " + e.getMessage());
+        }
     }
 }
