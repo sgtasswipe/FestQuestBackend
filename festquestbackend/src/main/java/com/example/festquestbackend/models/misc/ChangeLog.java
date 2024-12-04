@@ -1,6 +1,6 @@
 package com.example.festquestbackend.models.misc;
 
-import com.example.festquestbackend.models.users.User;
+import com.example.festquestbackend.models.users.FestUser;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -15,19 +15,19 @@ public class ChangeLog {
     @Column(name = "time_stamp", nullable = false)
     private LocalDateTime timeStamp;
 
-    @Column(name = "change", nullable = false)
+    @Column(name = "changed", nullable = false)
     private String change;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    private User user;
+    @JoinColumn(name = "fest_user_id", referencedColumnName = "id", nullable = false)
+    private FestUser festUser;
 
 //  Constructor
     public ChangeLog() {
     }
 
-    public ChangeLog(User user, LocalDateTime timeStamp, String change) {
-        this.user = user;
+    public ChangeLog(FestUser festUser, LocalDateTime timeStamp, String change) {
+        this.festUser = festUser;
         this.timeStamp = timeStamp;
         this.change = change;
     }
@@ -56,11 +56,11 @@ public class ChangeLog {
         this.change = change;
     }
 
-    public User getUser() {
-        return user;
+    public FestUser getUser() {
+        return festUser;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(FestUser festUser) {
+        this.festUser = festUser;
     }
 }

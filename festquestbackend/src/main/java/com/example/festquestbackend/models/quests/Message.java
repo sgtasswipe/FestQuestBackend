@@ -1,6 +1,6 @@
 package com.example.festquestbackend.models.quests;
 
-import com.example.festquestbackend.models.users.User;
+import com.example.festquestbackend.models.users.FestUser;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -18,8 +18,8 @@ public class Message {
     private Chat chat;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    private User user;
+    @JoinColumn(name = "fest_user_id", referencedColumnName = "id", nullable = false)
+    private FestUser festUser;
 
     @Column (nullable = false)
     private String content;
@@ -31,10 +31,10 @@ public class Message {
 
     }
 
-    public Message(long id, Chat chat, User user, String content, LocalDateTime timeStamp) {
+    public Message(long id, Chat chat, FestUser festUser, String content, LocalDateTime timeStamp) {
         this.id = id;
         this.chat = chat;
-        this.user = user;
+        this.festUser = festUser;
         this.content = content;
         this.timeStamp = timeStamp;
     }
@@ -55,12 +55,12 @@ public class Message {
         this.chat = chat;
     }
 
-    public User getUser() {
-        return user;
+    public FestUser getUser() {
+        return festUser;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(FestUser festUser) {
+        this.festUser = festUser;
     }
 
     public String getContent() {

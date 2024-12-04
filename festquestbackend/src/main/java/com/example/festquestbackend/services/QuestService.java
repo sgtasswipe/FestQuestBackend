@@ -14,10 +14,10 @@ import java.util.List;
 public class QuestService {
 
     private final QuestRepository questRepository;
-    private final UserService userService;
-    public QuestService(QuestRepository questRepository, UserService userService) {
+    private final FestUserService festUserService;
+    public QuestService(QuestRepository questRepository, FestUserService festUserService) {
         this.questRepository = questRepository;
-        this.userService = userService;
+        this.festUserService = festUserService;
     }
 
     public List<Quest> findAll() {
@@ -25,7 +25,7 @@ public class QuestService {
        //  Long userId =  userService.getLoggedInUser();
         // todo sort quests before returning them
       //  return questRepository.findAllByUserId(userId);
-      return questRepository.findDistinctByQuestParticipants_UserId(1L);  // hard-coded for now, will have to figure out how to retrieve user from session
+      return questRepository.findDistinctByQuestParticipants_FestUserId(1L);  // hard-coded for now, will have to figure out how to retrieve user from session
     }
 
 
