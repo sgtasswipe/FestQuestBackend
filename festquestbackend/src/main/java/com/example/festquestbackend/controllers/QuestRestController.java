@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.services.QuestService;
+
+import java.security.Principal;
 
 // Controller
 @RestController
@@ -35,6 +38,7 @@ public class QuestRestController {
     public List<Quest> getQuestboard() {
       return questService.findAll();
     }
+
 
 
     @GetMapping("/quest/{id}")
@@ -57,6 +61,32 @@ public class QuestRestController {
             System.err.println(errorMessage);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
         }
+    }
+
+    // spring security test method req authentication
+    @PostMapping("/testsecure")
+    @PreAuthorize("hasRole('USER')") // Spring Security annotation
+    public ResponseEntity<Quest> createQuest(
+            @RequestBody Quest quest,
+            Principal principal
+    ) {
+        // principal.getName() gives authenticated user's email
+        String userEmail = principal.getName();
+        Quest createdQuest = questService.save(quest).get();
+        return ResponseEntity.ok(createdQuest);
+    }
+
+    // spring security test method req authentication
+    @PostMapping("/testsecure")
+    @PreAuthorize("hasRole('USER')") // Spring Security annotation
+    public ResponseEntity<Quest> createQuest(
+            @RequestBody Quest quest,
+            Principal principal
+    ) {
+        // principal.getName() gives authenticated user's email
+        String userEmail = principal.getName();
+        Quest createdQuest = questService.save(quest).get();
+        return ResponseEntity.ok(createdQuest);
     }
 
     @PutMapping ("/quest/{id}")

@@ -1,5 +1,10 @@
 package com.example.festquestbackend.services;
 
+import com.example.festquestbackend.models.quests.Quest;
+import com.example.festquestbackend.repositories.QuestRepository;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -19,10 +24,10 @@ import jakarta.transaction.Transactional;
 @Service
 public class QuestService {
     private final QuestRepository questRepository;
-    private final UserService userService;
-    public QuestService(QuestRepository questRepository, UserService userService) {
+    private final FestUserService festUserService;
+    public QuestService(QuestRepository questRepository, FestUserService festUserService) {
         this.questRepository = questRepository;
-        this.userService = userService;
+        this.festUserService = festUserService;
     }
 
     public List<Quest> findAll() {
@@ -55,6 +60,7 @@ public class QuestService {
     public Optional<Quest> findById(long id) {
         return questRepository.findById(id);
     }
+
 
     public Optional<Quest> save(Quest quest) {
         try {
