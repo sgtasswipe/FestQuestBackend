@@ -20,14 +20,14 @@ public class ChangeLog {
 
     @ManyToOne
     @JoinColumn(name = "fest_user_id", referencedColumnName = "id", nullable = false)
-    private User user;
+    private FestUser user;
 
 //  Constructor
     public ChangeLog() {
     }
 
     public ChangeLog(FestUser festUser, LocalDateTime timeStamp, String change) {
-        this.festUser = festUser;
+        this.user = festUser;
         this.timeStamp = timeStamp;
         this.change = change;
     }
@@ -57,10 +57,10 @@ public class ChangeLog {
     }
 
     public FestUser getUser() {
-        return festUser;
+        return user;
     }
 
     public void setUser(FestUser festUser) {
-        this.festUser = festUser;
+        this.user = festUser;
     }
 }

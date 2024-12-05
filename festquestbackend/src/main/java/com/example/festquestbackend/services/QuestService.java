@@ -1,5 +1,6 @@
 package com.example.festquestbackend.services;
 
+import com.example.festquestbackend.models.misc.ChangeLog;
 import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.models.users.QuestParticipant;
 import org.springframework.beans.BeanUtils;

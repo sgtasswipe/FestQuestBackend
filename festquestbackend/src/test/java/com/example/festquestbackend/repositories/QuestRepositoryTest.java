@@ -5,6 +5,7 @@ import com.example.festquestbackend.repositories.quests.QuestRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,9 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest // Repository tests
+ // Repository tests
+@SpringBootTest
+ @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class QuestRepositoryTest {
 
     // Integrationtest + To verify database queries, relationships, and entity mappings.
