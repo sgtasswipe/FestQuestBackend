@@ -44,6 +44,9 @@ public class FestUserService {
     public void createUser(FestUser festUser) {
         String hashedPwd = passwordEncoder.encode(festUser.getPassword());
         festUser.setPassword(hashedPwd);
+
+        // Give a new user ROLE_USER by default (Spring security)
+        festUser.setRole("ROLE_USER");
         festUserRepository.save(festUser);
     }
 
