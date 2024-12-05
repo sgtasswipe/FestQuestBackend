@@ -34,7 +34,7 @@ public class FestUser implements UserDetails {
     @JsonIgnore
 
     @Column(nullable = false)
-    private String role = "ROLE_USER";
+    private String role;
 
 
     public FestUser() {
@@ -103,7 +103,7 @@ public class FestUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority(role));
     } // each user gets given role "USER". If a user wants to make an action that requires admin role, that must be checked in controller
 
 
