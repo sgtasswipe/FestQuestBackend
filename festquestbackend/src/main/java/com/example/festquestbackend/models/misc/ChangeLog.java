@@ -15,11 +15,11 @@ public class ChangeLog {
     @Column(name = "time_stamp", nullable = false)
     private LocalDateTime timeStamp;
 
-    @Column(name = "change", nullable = false)
+    @Column(name = "changed", nullable = false, length = 1000)
     private String change;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "fest_user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
 //  Constructor
