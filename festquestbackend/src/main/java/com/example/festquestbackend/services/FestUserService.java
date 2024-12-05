@@ -37,8 +37,8 @@ public class FestUserService {
         return festUser;
     }
 
-    public FestUser findByEmail(String email) {
-        return festUserRepository.findByEmail(email).get();
+    public Optional<FestUser> findByEmail(String email) {
+        return festUserRepository.findByEmail(email);
     }
 
     public void createUser(FestUser festUser) {

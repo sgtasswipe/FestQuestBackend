@@ -1,8 +1,16 @@
 package com.example.festquestbackend.controllers;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.festquestbackend.models.users.FestUser;
+import com.example.festquestbackend.services.FestUserService;
+import com.example.festquestbackend.util.SecurityConstants;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.services.QuestService;
 
+import javax.crypto.SecretKey;
 import java.security.Principal;
 
 // Controller
@@ -28,10 +37,12 @@ import java.security.Principal;
 @CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"}, allowCredentials = "true")
 public class QuestRestController {
     private final QuestService questService;
+    private final FestUserService festUserService;
 
     @Autowired
-    public QuestRestController(QuestService questService) {
+    public QuestRestController(QuestService questService, FestUserService festUserService) {
     this.questService = questService;
+    this.festUserService = festUserService;
     }
 
     @GetMapping("/questboard")
@@ -101,9 +112,34 @@ public class QuestRestController {
         }
     }
 
-    @GetMapping("/quests/{userId}")
-    public ResponseEntity<List<Quest>> getQuestsForUser(@PathVariable Long userId) {
-        List<Quest> quests = questService.findAllForUser(userId);
+    @GetMapping("/quests")
+    public ResponseEntity<List<Quest>> getQuestsForUser(HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7);
+        System.out.println("TISSELORT: " + token);
+
+        // Define the secret key
+        SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
+
+        // Parse the JWT to get claims
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        System.out.println(claims);
+        System.out.println("LORT LORT LORT" + claims.get("username", String.class));
+
+        // Extract the email from the claims
+        String email = claims.get("username", String.class);
+
+        FestUser festUser = festUserService.findByEmail(email).get();
+
+        System.out.println("TISSEMAND" + festUser.getId());
+
+        List<Quest> quests = questService.findAllForUser(festUser.getId());
+
+        System.out.println("ABA" + quests.size());
         return ResponseEntity.ok(quests);
     }
 }

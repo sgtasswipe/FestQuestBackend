@@ -36,12 +36,6 @@ public class QuestService {
     public List<Quest> findAllForUser(Long userId) {
         // First, get all quests where the user is a participant
         List<Quest> quests = questRepository.findDistinctByQuestParticipants_FestUserId(userId);
-        
-        if (quests.isEmpty()) {
-            // If no quests found through participants, try getting all quests
-            // This is temporary for testing - remove in production
-            return questRepository.findAll();
-        }
 
         return quests.stream()
             .map(quest -> {

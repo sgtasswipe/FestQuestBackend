@@ -5,6 +5,7 @@ import com.example.festquestbackend.services.FestUserService;
 import com.example.festquestbackend.util.JWTTokenGeneratorFilter;
 import com.example.festquestbackend.util.JwtUtil;
 import com.example.festquestbackend.util.SecurityConstants;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.SecretKey;
+import javax.swing.text.html.Option;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -40,19 +42,42 @@ public class UserRestController {
         this.authenticationManager = authenticationManager;
     }
 
-    @GetMapping("/user/{id}") // TODO User or Users here?
-    public ResponseEntity<FestUser> getUser(@RequestParam long id) {
-        return festUserService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/user/{jwt}") // Changed from TODO User to Users for consistency
+    public ResponseEntity<FestUser> getUser(@PathVariable String jwt) { // Fixed to use @PathVariable
+        try {
+            // Define the secret key
+            SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
+
+            // Parse the JWT to get claims
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(jwt)
+                    .getBody();
+
+            System.out.println(claims);
+            System.out.println(claims.get("username", String.class));
+
+            // Extract the email from the claims
+            String email = claims.get("username", String.class);
+
+            // Use the email to find the user
+            return festUserService.findByEmail(email)
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            // Handle token parsing or validation errors
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
+
     public String jwtGenerator (String email) {
 
-        FestUser festUser = festUserService.findByEmail(email);
+        Optional<FestUser> festUser = festUserService.findByEmail(email);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         System.out.printf("JWT kaldt");
 
-        List<String> roles = festUser.getAuthorities()
+        List<String> roles = festUser.get().getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
@@ -60,7 +85,7 @@ public class UserRestController {
         if (null != authentication) {
             SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
             return Jwts.builder().setIssuer("Deez").setSubject("JWT Token")
-                    .claim("username", festUser.getEmail())
+                    .claim("username", festUser.get().getEmail())
                     .claim("authorities", roles)
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(new Date().getTime() + 300000000))
@@ -75,7 +100,7 @@ public class UserRestController {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
         if (authentication.isAuthenticated()) {
-           FestUser festUser = festUserService.findByEmail(email);
+           FestUser festUser = festUserService.findByEmail(email).get();
             String token = jwtGenerator(email);
             response.setHeader("Authorization", token);
             return ResponseEntity.ok("Login successful");
