@@ -74,7 +74,7 @@ public class UserRestController {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
         if (authentication.isAuthenticated()) {
-           FestUser festUser = festUserService.findByEmail(email);
+          w  FestUser festUser = festUserService.findByEmail(email);
             String token = jwtGenerator(email);
             response.setHeader("Authorization", token);
             return ResponseEntity.ok("Login successful");
