@@ -1,13 +1,20 @@
 package com.example.festquestbackend.models.quests;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.example.festquestbackend.models.users.QuestParticipant;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
-
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.time.LocalDateTime;
+
+import com.example.festquestbackend.models.users.QuestParticipant;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table ( name = "quests")
@@ -32,12 +39,12 @@ public class  Quest {
     @Column ( nullable = false)
     private LocalDateTime endTime;
 
-    @OneToMany(mappedBy = "quest")
+    @OneToMany(mappedBy = "quest", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // Placed on the parent (Includes the child on serialization)
     private List<QuestParticipant> questParticipants = new ArrayList<>();
 
     @OneToMany(mappedBy = "quest", cascade =  CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
+    @JsonManagedReference // Change from @JsonBackReference to @JsonManagedReference
     private List<SubQuest> subQuestList;
 
     public Quest() {

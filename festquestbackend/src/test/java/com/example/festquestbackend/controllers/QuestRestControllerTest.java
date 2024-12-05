@@ -1,19 +1,18 @@
 package com.example.festquestbackend.controllers;
 
-import com.example.festquestbackend.models.quests.Quest;
-import com.example.festquestbackend.repositories.quests.QuestRepository;
-import com.example.festquestbackend.services.QuestService;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
-import java.util.Optional;
+import com.example.festquestbackend.models.quests.Quest;
+import com.example.festquestbackend.repositories.quests.QuestRepository;
+import com.example.festquestbackend.services.QuestService;
 
-
-import java.time.LocalDateTime;
-
-@WebMvcTest(QuestRestControllerTest.class)// Controller test.
+@WebMvcTest(QuestRestController.class) // Changed from QuestRestControllerTest.class to QuestRestController.class
 class QuestRestControllerTest {
 
     @Autowired

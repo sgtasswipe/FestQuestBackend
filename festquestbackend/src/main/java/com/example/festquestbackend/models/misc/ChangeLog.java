@@ -1,6 +1,6 @@
 package com.example.festquestbackend.models.misc;
 
-import com.example.festquestbackend.models.users.User;
+import com.example.festquestbackend.models.users.FestUser;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -26,8 +26,8 @@ public class ChangeLog {
     public ChangeLog() {
     }
 
-    public ChangeLog(User user, LocalDateTime timeStamp, String change) {
-        this.user = user;
+    public ChangeLog(FestUser festUser, LocalDateTime timeStamp, String change) {
+        this.festUser = festUser;
         this.timeStamp = timeStamp;
         this.change = change;
     }
@@ -56,11 +56,11 @@ public class ChangeLog {
         this.change = change;
     }
 
-    public User getUser() {
-        return user;
+    public FestUser getUser() {
+        return festUser;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(FestUser festUser) {
+        this.festUser = festUser;
     }
 }
