@@ -28,15 +28,21 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter {
         System.out.printf("JWT Validation kaldt header=" + authorizationHeader);
 
         if (null != authorizationHeader) {
-            String jwt = authorizationHeader.substring(7);
+            System.out.println("authorization found:" + authorizationHeader.substring(7));
+            String jwt = authorizationHeader.startsWith("Bearer ") ? authorizationHeader.substring(7) : authorizationHeader;
+
+
             try {
                 SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
                 Claims claims = Jwts.parserBuilder().setSigningKey(key).build()
-
                         .parseClaimsJws(jwt).getBody();
                 String username = String.valueOf(claims.get("username"));
                 List<String> authoritiesList = claims.get("authorities", ArrayList.class);
                 String authorities = String.join(",", authoritiesList);
+
+                // Log the username and authorities
+                System.out.printf("Authenticated user: %s%n", username);
+                System.out.printf("Roles (Authorities): %s%n", authorities); // Log roles/authorities
 
                 Authentication auth = new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.commaSeparatedStringToAuthorityList(authorities));
                 SecurityContextHolder.getContext().setAuthentication(auth);
