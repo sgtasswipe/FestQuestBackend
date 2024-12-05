@@ -50,11 +50,17 @@ public class UserRestController {
         FestUser festUser = festUserService.findByEmail(email);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         System.out.printf("JWT kaldt");
+
+        List<String> roles = festUser.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
         if (null != authentication) {
             SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
             return Jwts.builder().setIssuer("Deez").setSubject("JWT Token")
                     .claim("username", festUser.getEmail())
-                    .claim("authorities", populateAuthorities(authentication.getAuthorities()))
+                    .claim("authorities", roles)
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(new Date().getTime() + 300000000))
                     .signWith(key).compact();

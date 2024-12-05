@@ -4,8 +4,11 @@ import com.example.festquestbackend.models.quests.Quest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.example.festquestbackend.services.QuestService;
+
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +28,7 @@ public QuestRestController (QuestService questService) {
     }
 
 
+
     @GetMapping("/quest/{id}")
     public ResponseEntity<Quest> getQuest(@RequestParam long id) {
         return questService.findById(id)
@@ -37,6 +41,19 @@ public QuestRestController (QuestService questService) {
     public ResponseEntity<Quest> createQuestFunc ( @RequestBody Quest quest) {
     return questService.save(quest).map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // spring security test method req authentication
+    @PostMapping("/testsecure")
+    @PreAuthorize("hasRole('USER')") // Spring Security annotation
+    public ResponseEntity<Quest> createQuest(
+            @RequestBody Quest quest,
+            Principal principal
+    ) {
+        // principal.getName() gives authenticated user's email
+        String userEmail = principal.getName();
+        Quest createdQuest = questService.save(quest).get();
+        return ResponseEntity.ok(createdQuest);
     }
 
     @PutMapping ("/quest/{id}")

@@ -34,7 +34,7 @@ public class FestUser implements UserDetails {
     @JsonIgnore
 
     @Column(nullable = false)
-    private String role = "USER";
+    private String role = "ROLE_USER";
 
 
     public FestUser() {
