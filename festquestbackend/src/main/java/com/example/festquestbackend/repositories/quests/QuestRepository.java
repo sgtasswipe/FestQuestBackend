@@ -18,11 +18,11 @@ public interface QuestRepository extends JpaRepository<Quest, Long> {
     @Query("""
         SELECT DISTINCT q FROM Quest q 
         JOIN q.questParticipants qp 
-        WHERE qp.user.id = :userId 
+        WHERE qp.festUser.id = :festUserId 
         AND qp.isGoing = true 
         ORDER BY q.startTime ASC
         """)
-    List<Quest> findActiveQuestsByUserId(@Param("userId") Long userId);
+    List<Quest> findActiveQuestsByUserId(@Param("festUserId") Long festUserId);
 
-    List<Quest> findDistinctByQuestParticipants_UserIdOrderByStartTimeAsc(Long userId);
+    List<Quest> findDistinctByQuestParticipants_FestUserId(Long festUserId);
 }

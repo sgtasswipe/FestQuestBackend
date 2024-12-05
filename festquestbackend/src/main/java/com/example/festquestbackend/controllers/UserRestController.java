@@ -25,10 +25,10 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 
 @RestController
-@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"}, allowCredentials = "true")
+//@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"}, allowCredentials = "true")
 public class UserRestController {
     private final FestUserService festUserService;
    private final PasswordEncoder passEncoder;

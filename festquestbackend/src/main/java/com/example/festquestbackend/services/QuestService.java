@@ -1,7 +1,6 @@
 package com.example.festquestbackend.services;
 
 import com.example.festquestbackend.models.quests.Quest;
-import com.example.festquestbackend.repositories.QuestRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +15,8 @@ import org.springframework.stereotype.Service;
 import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.models.quests.SubQuest;
 import com.example.festquestbackend.models.users.QuestParticipant;
-import com.example.festquestbackend.models.users.User;
 import com.example.festquestbackend.repositories.quests.QuestRepository;
+import com.example.festquestbackend.models.users.FestUser;
 
 import jakarta.transaction.Transactional;
 
@@ -36,7 +35,7 @@ public class QuestService {
 
     public List<Quest> findAllForUser(Long userId) {
         // First, get all quests where the user is a participant
-        List<Quest> quests = questRepository.findDistinctByQuestParticipants_UserIdOrderByStartTimeAsc(userId);
+        List<Quest> quests = questRepository.findDistinctByQuestParticipants_FestUserId(userId);
         
         if (quests.isEmpty()) {
             // If no quests found through participants, try getting all quests
@@ -77,7 +76,7 @@ public class QuestService {
     }
 
     public Quest createQuest(Quest quest, Long userId) {
-        User user = userService.findById(userId)
+        FestUser user = festUserService.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
         
         QuestParticipant creator = new QuestParticipant();

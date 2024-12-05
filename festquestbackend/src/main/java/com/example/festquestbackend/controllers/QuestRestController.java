@@ -76,19 +76,6 @@ public class QuestRestController {
         return ResponseEntity.ok(createdQuest);
     }
 
-    // spring security test method req authentication
-    @PostMapping("/testsecure")
-    @PreAuthorize("hasRole('USER')") // Spring Security annotation
-    public ResponseEntity<Quest> createQuest(
-            @RequestBody Quest quest,
-            Principal principal
-    ) {
-        // principal.getName() gives authenticated user's email
-        String userEmail = principal.getName();
-        Quest createdQuest = questService.save(quest).get();
-        return ResponseEntity.ok(createdQuest);
-    }
-
     @PutMapping ("/quest/{id}")
     public ResponseEntity<Quest> updateQuest(@PathVariable long id, @RequestBody Quest updatedQuest) {
         return questService.findById(id)
