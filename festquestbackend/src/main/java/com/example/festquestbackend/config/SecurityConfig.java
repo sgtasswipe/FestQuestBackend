@@ -53,12 +53,17 @@ public class SecurityConfig {
                     }
                 })).csrf((csrf) -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers("/contact", "/register", "/dologin", "/signup")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
-               // .addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
-                .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
-                .authorizeHttpRequests((requests) -> requests
-                        .anyRequest().permitAll())
-                .formLogin(Customizer.withDefaults())
-                .httpBasic(Customizer.withDefaults());
+                        // .addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
+                        .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
+                        .authorizeHttpRequests((requests) -> requests
+                                //.requestMatchers("/questboard/quests").hasAnyRole("USER", "ADMIN")
+                                //.requestMatchers("/questboard/quest/**").hasAnyRole("USER", "ADMIN")
+                                .requestMatchers("/dologin", "/signup").permitAll()
+                                .anyRequest().authenticated())
+
+                        // If a status code 401 (Unauthorized) is sent, show the basic login form
+                        .formLogin(Customizer.withDefaults())
+                        .httpBasic(Customizer.withDefaults());
         return http.build();
     }
 
