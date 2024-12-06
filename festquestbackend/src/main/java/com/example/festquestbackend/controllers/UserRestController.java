@@ -100,7 +100,6 @@ public class UserRestController {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
         if (authentication.isAuthenticated()) {
-           FestUser festUser = festUserService.findByEmail(email).get();
             String token = jwtGenerator(email);
             response.setHeader("Authorization", token);
             return ResponseEntity.ok("Login successful");
@@ -143,5 +142,4 @@ public class UserRestController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
-    }
-
+}
