@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,19 +43,18 @@ public class QuestRestController {
 
     @Autowired
     public QuestRestController(QuestService questService, FestUserService festUserService) {
-    this.questService = questService;
-    this.festUserService = festUserService;
+        this.questService = questService;
+        this.festUserService = festUserService;
     }
 
     @GetMapping("/questboard")
     public List<Quest> getQuestboard() {
-      return questService.findAll();
+        return questService.findAll();
     }
-
-
 
     @GetMapping("/quest/{id}")
     public ResponseEntity<Quest> getQuest(@PathVariable long id) {
+        System.out.println("/quest/id kaldt");
         return questService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -89,6 +90,7 @@ public class QuestRestController {
 
     @PutMapping ("/quest/{id}")
     public ResponseEntity<Quest> updateQuest(@PathVariable long id, @RequestBody Quest updatedQuest) {
+        System.out.println("PUT/quest/id kaldt");
         return questService.findById(id)
                 .map(existingQuest -> {
                     questService.updateQuest(updatedQuest, existingQuest);
@@ -100,46 +102,28 @@ public class QuestRestController {
     public ResponseEntity<?> deleteQuest(@PathVariable long id) {
         try {
             return questService.findById(id)
-                .map(quest -> {
-                    questService.deleteQuest(quest);
-                    return ResponseEntity.ok().build();
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                    .map(quest -> {
+                        questService.deleteQuest(quest);
+                        return ResponseEntity.ok().build();
+                    })
+                    .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
             return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error deleting quest: " + e.getMessage());
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting quest: " + e.getMessage());
         }
     }
 
     @GetMapping("/quests")
-    public ResponseEntity<List<Quest>> getQuestsForUser(HttpServletRequest request) {
-        String token = request.getHeader("Authorization").substring(7);
-        System.out.println("TISSELORT: " + token);
+    public ResponseEntity<List<Quest>> getQuestsForUser() {
+        // Get the current Authentication object from the SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // Define the secret key
-        SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
-
-        // Parse the JWT to get claims
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        System.out.println(claims);
-        System.out.println("LORT LORT LORT" + claims.get("username", String.class));
-
-        // Extract the email from the claims
-        String email = claims.get("username", String.class);
+        // Retrieve the user's identity (email)
+        String email = (String) authentication.getPrincipal();
 
         FestUser festUser = festUserService.findByEmail(email).get();
-
-        System.out.println("TISSEMAND" + festUser.getId());
-
         List<Quest> quests = questService.findAllForUser(festUser.getId());
-
-        System.out.println("ABA" + quests.size());
         return ResponseEntity.ok(quests);
     }
 }
