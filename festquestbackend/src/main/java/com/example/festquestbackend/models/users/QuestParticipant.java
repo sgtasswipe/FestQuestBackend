@@ -14,15 +14,16 @@ public class QuestParticipant {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    private User user;
+    @JoinColumn(name = "fest_user_id", referencedColumnName = "id", nullable = false)
+    private FestUser festUser;
 
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
-    @JsonBackReference
+
     @ManyToOne
     @JoinColumn(name = "quest_id", referencedColumnName = "id", nullable = false)
+    @JsonBackReference
     private Quest quest;
 
     @Column(nullable = false)
@@ -32,9 +33,9 @@ public class QuestParticipant {
 
     }
 
-    public QuestParticipant(long id, User user, Role role, Quest quest, boolean isGoing) {
+    public QuestParticipant(long id, FestUser festUser, Role role, Quest quest, boolean isGoing) {
         this.id = id;
-        this.user = user;
+        this.festUser = festUser;
         this.role = role;
         this.quest = quest;
         this.isGoing = isGoing;
@@ -48,12 +49,12 @@ public class QuestParticipant {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public FestUser getUser() {
+        return festUser;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(FestUser festUser) {
+        this.festUser = festUser;
     }
 
     public Role getRole() {

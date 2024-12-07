@@ -1,40 +1,53 @@
 package com.example.festquestbackend.services;
 
 import com.example.festquestbackend.models.quests.Quest;
-
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
-
-
-import com.example.festquestbackend.repositories.quests.QuestRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
-
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import com.example.festquestbackend.models.quests.Quest;
+import com.example.festquestbackend.models.quests.SubQuest;
+import com.example.festquestbackend.models.users.QuestParticipant;
+import com.example.festquestbackend.repositories.quests.QuestRepository;
+import com.example.festquestbackend.models.users.FestUser;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class QuestService {
-
     private final QuestRepository questRepository;
-    private final UserService userService;
-    public QuestService(QuestRepository questRepository, UserService userService) {
+    private final FestUserService festUserService;
+    public QuestService(QuestRepository questRepository, FestUserService festUserService) {
         this.questRepository = questRepository;
-        this.userService = userService;
+        this.festUserService = festUserService;
     }
 
     public List<Quest> findAll() {
+        return questRepository.findAll();
+    }
 
-       //  Long userId =  userService.getLoggedInUser();
-        // todo sort quests before returning them
-      //  return questRepository.findAllByUserId(userId);
-      return questRepository.findDistinctByQuestParticipants_UserId(1L);  // hard-coded for now, will have to figure out how to retrieve user from session
+    public List<Quest> findAllForUser(Long userId) {
+        // First, get all quests where the user is a participant
+        List<Quest> quests = questRepository.findDistinctByQuestParticipants_FestUserId(userId);
+
+        return quests.stream()
+            .map(quest -> {
+                // Filter participants to only include the current user
+                List<QuestParticipant> filteredParticipants = quest.getQuestParticipants()
+                    .stream()
+                    .filter(qp -> qp.getUser().getId() == userId)  
+                    .collect(Collectors.toList());
+                quest.setQuestParticipants(filteredParticipants);
+                return quest;
+            })
+            .collect(Collectors.toList());
     }
 
     public Optional<Quest> findById(long id) {
@@ -42,19 +55,37 @@ public class QuestService {
     }
 
 
-
-
     public Optional<Quest> save(Quest quest) {
-  // move responseentity to controller
-        // add logic to prevent date in past as start time
-        // prevent end time to be before starttime
-
         try {
             validateQuestDates(quest);
-            return Optional.of(questRepository.save(quest));
+            Quest savedQuest = questRepository.save(quest);
+            return Optional.of(savedQuest);
         } catch (IllegalArgumentException e) {
+            System.err.println("Error saving quest: " + e.getMessage());
             return Optional.empty();
+        } catch (Exception e) {
+            System.err.println("Error saving quest: " + e.getMessage());
+            throw e; // Re-throw to be caught by controller
         }
+    }
+
+    public Quest createQuest(Quest quest, Long userId) {
+        FestUser user = festUserService.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        QuestParticipant creator = new QuestParticipant();
+        creator.setUser(user);
+        creator.setQuest(quest);
+        creator.setGoing(true);
+        
+        quest.setQuestParticipants(List.of(creator));
+        Quest savedQuest = questRepository.save(quest);
+        
+        // Debug output
+        System.out.println("Created quest with ID: " + savedQuest.getId());
+        System.out.println("Number of participants: " + savedQuest.getQuestParticipants().size());
+        
+        return savedQuest;
     }
 
     public void validateQuestDates(Quest quest) {
@@ -69,15 +100,32 @@ public class QuestService {
     public void updateQuest(Quest updatedQuest, Quest existingQuest) {
         try {
             validateQuestDates(updatedQuest);
-            BeanUtils.copyProperties(updatedQuest, existingQuest, "id"); //Spring metode der kopierer attributter
+            
+            // Save the existing subQuestList
+            List<SubQuest> existingSubQuests = existingQuest.getSubQuestList();
+            
+            // Copy properties excluding id and relationships
+            BeanUtils.copyProperties(updatedQuest, existingQuest, "id", "subQuestList", "questParticipants");
+            
+            // Restore the subQuestList
+            existingQuest.setSubQuestList(existingSubQuests);
+            
             questRepository.save(existingQuest);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
+            throw e;
         }
     }
 
+    @Transactional
     public void deleteQuest(Quest quest) {
-        questRepository.delete(quest);
+        try {
+            // Clear relationships to ensure clean deletion
+            quest.getQuestParticipants().clear();
+            quest.getSubQuestList().clear();
+            questRepository.delete(quest);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete quest: " + e.getMessage());
+        }
     }
-
 }
