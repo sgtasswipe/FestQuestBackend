@@ -39,8 +39,6 @@ public class QuestRestController {
       return questService.findAll();
     }
 
-
-
     @GetMapping("/quest/{id}")
     public ResponseEntity<Quest> getQuest(@PathVariable long id) {
         return questService.findById(id)
@@ -62,6 +60,7 @@ public class QuestRestController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
         }
     }
+
 
     // spring security test method req authentication
     @PostMapping("/testsecure")
