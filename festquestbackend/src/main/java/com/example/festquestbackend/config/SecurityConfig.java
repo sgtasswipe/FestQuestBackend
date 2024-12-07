@@ -53,12 +53,13 @@ public class SecurityConfig {
                     }
                 })).csrf((csrf) -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers("/contact", "/register", "/dologin", "/signup")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
-               // .addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
+                        // .addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
                 .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
-                .authorizeHttpRequests((requests) -> requests
+                        .authorizeHttpRequests((requests) -> requests
                         .anyRequest().permitAll())
-                .formLogin(Customizer.withDefaults())
-                .httpBasic(Customizer.withDefaults());
+
+                    .formLogin(Customizer.withDefaults())
+                    .httpBasic(Customizer.withDefaults());
         return http.build();
     }
 
