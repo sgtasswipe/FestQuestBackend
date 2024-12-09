@@ -1,21 +1,19 @@
 package com.example.festquestbackend.util;
 
-import com.example.festquestbackend.models.users.FestUser;
-import com.example.festquestbackend.services.FestUserService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.function.Function;
+
+import javax.crypto.SecretKey;
 
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
+import com.example.festquestbackend.models.users.FestUser;
+import com.example.festquestbackend.services.FestUserService;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
@@ -32,8 +30,7 @@ public class JwtUtil {
         System.out.printf("JWT kaldt");
 
         SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
-        return Jwts.builder().setIssuer("Deez").setSubject("JWT Token")
-                .claim("username", festUser.getEmail())
+        return Jwts.builder().setIssuer("Deez").setSubject(festUser.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + 300000000))
                 .signWith(key).compact();
