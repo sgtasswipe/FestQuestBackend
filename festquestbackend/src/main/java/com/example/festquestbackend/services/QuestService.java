@@ -1,6 +1,7 @@
 package com.example.festquestbackend.services;
 
 import com.example.festquestbackend.models.quests.Quest;
+import com.example.festquestbackend.repositories.users.FestUserRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +25,11 @@ import jakarta.transaction.Transactional;
 public class QuestService {
     private final QuestRepository questRepository;
     private final FestUserService festUserService;
-    public QuestService(QuestRepository questRepository, FestUserService festUserService) {
+    private final FestUserRepository festUserRepository;
+    public QuestService(QuestRepository questRepository, FestUserService festUserService, FestUserRepository festUserRepository) {
         this.questRepository = questRepository;
         this.festUserService = festUserService;
+        this.festUserRepository = festUserRepository;
     }
 
     public List<Quest> findAll() {
@@ -133,5 +136,14 @@ public class QuestService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete quest: " + e.getMessage());
         }
+    }
+  // test method for debuggin 401 error in jwt
+    public List<Quest> findAllForUserByEmail(String email) {
+        // Find the user by their email
+        FestUser user = festUserRepository.findByEmail(email)
+                .orElseThrow(() -> new NullPointerException("User not found with email: " + email));
+
+        // Fetch quests where the user is a participant
+        return questRepository.findDistinctByQuestParticipants_FestUserId(user.getId());
     }
 }

@@ -1,6 +1,7 @@
 package com.example.festquestbackend.models.quests;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class SubQuest {
     private Double budget;
 
     @OneToMany(mappedBy = "subQuest", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
+    @JsonManagedReference
     private List<Duty> dutyList;
 
     public SubQuest () {

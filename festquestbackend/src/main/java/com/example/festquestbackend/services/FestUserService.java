@@ -3,7 +3,7 @@ package com.example.festquestbackend.services;
 import com.example.festquestbackend.models.users.FestUser;
 
 import com.example.festquestbackend.repositories.users.FestUserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.example.festquestbackend.util.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,10 +45,5 @@ public class FestUserService {
         String hashedPwd = passwordEncoder.encode(festUser.getPassword());
         festUser.setPassword(hashedPwd);
         festUserRepository.save(festUser);
-    }
-
-    public Long getLoggedInUser(FestUser festUser) {
-         // todo find user id from session
-        return festUserRepository.findById(festUser.getId()).get().getId();
     }
 }
