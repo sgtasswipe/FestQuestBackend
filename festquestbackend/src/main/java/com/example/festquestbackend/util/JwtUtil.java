@@ -32,8 +32,7 @@ public class JwtUtil {
         System.out.printf("JWT kaldt");
 
         SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
-        return Jwts.builder().setIssuer("Deez").setSubject("JWT Token")
-                .claim("username", festUser.getEmail())
+        return Jwts.builder().setIssuer("Deez").setSubject(festUser.getEmail()) // SHOULD BE REPLACED AND PUT IN "USERNAME"!
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + 300000000))
                 .signWith(key).compact();
