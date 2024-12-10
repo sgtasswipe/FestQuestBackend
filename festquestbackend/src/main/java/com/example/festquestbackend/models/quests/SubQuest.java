@@ -1,9 +1,20 @@
 package com.example.festquestbackend.models.quests;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
-
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table ( name = "sub_quests")
@@ -15,6 +26,7 @@ public class SubQuest {
 
     @ManyToOne
     @JoinColumn( name = "quest_id", referencedColumnName = "id", nullable = false)
+    @JsonBackReference("quest-subquest")
     private Quest quest;
 
     @Column ( nullable = false)
@@ -24,7 +36,7 @@ public class SubQuest {
     private Double budget;
 
     @OneToMany(mappedBy = "subQuest", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
+    @JsonManagedReference
     private List<Duty> dutyList;
 
     public SubQuest () {

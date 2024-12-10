@@ -1,12 +1,10 @@
 package com.example.festquestbackend.controllers;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,32 +12,38 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.festquestbackend.models.quests.Quest;
+import com.example.festquestbackend.models.users.FestUser;
+import com.example.festquestbackend.services.FestUserService;
 import com.example.festquestbackend.services.QuestService;
+import com.example.festquestbackend.util.JwtUtil;
 
-import java.security.Principal;
+import io.jsonwebtoken.Claims;
 
 // Controller
 @RestController
 @RequestMapping("/questboard")
-@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500" , "http://localhost:63342"})
 public class QuestRestController {
     private final QuestService questService;
 
-    @Autowired
-    public QuestRestController(QuestService questService) {
-    this.questService = questService;
-    }
+    private final JwtUtil jwtUtil;
+    private final FestUserService festUserService;
 
+    public QuestRestController(QuestService questService, JwtUtil jwtUtil, FestUserService festUserService) {
+        this.questService = questService;
+        this.jwtUtil = jwtUtil;
+        this.festUserService = festUserService;
+    }
+    
     @GetMapping("/questboard")
     public List<Quest> getQuestboard() {
       return questService.findAll();
     }
-
-
 
     @GetMapping("/quest/{id}")
     public ResponseEntity<Quest> getQuest(@PathVariable long id) {
@@ -48,32 +52,25 @@ public class QuestRestController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/quest")
-    public ResponseEntity<?> createQuestFunc(@RequestBody Quest quest) {
+    @PostMapping(value = "/quest", consumes = {"application/json", "application/json;charset=UTF-8"})
+    public ResponseEntity<?> createQuestFunc(
+        @RequestBody Quest quest,
+        @RequestHeader("Authorization") String authorizationHeader
+    ) {
         try {
-            System.out.println("Received quest data: " + quest);
-            Optional<Quest> savedQuest = questService.save(quest);
-            return savedQuest
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.badRequest().build());
+            String token = authorizationHeader.replace("Bearer ", "");
+            String email = jwtUtil.extractClaim(token, Claims::getSubject);
+            FestUser user = festUserService.findByEmail(email);
+            if (user == null) {
+                throw new RuntimeException("User not found");
+            }
+
+            Quest savedQuest = questService.createQuest(quest, user.getId());
+            return ResponseEntity.ok(savedQuest);
         } catch (Exception e) {
             String errorMessage = "Error creating quest: " + e.getMessage();
-            System.err.println(errorMessage);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
         }
-    }
-
-    // spring security test method req authentication
-    @PostMapping("/testsecure")
-    @PreAuthorize("hasRole('USER')") // Spring Security annotation
-    public ResponseEntity<Quest> createQuest(
-            @RequestBody Quest quest,
-            Principal principal
-    ) {
-        // principal.getName() gives authenticated user's email
-        String userEmail = principal.getName();
-        Quest createdQuest = questService.save(quest).get();
-        return ResponseEntity.ok(createdQuest);
     }
 
     @PutMapping ("/quest/{id}")
@@ -100,6 +97,21 @@ public class QuestRestController {
                 .body("Error deleting quest: " + e.getMessage());
         }
     }
+
+
+    @GetMapping("/quests")
+    public ResponseEntity<List<Quest>> getUserQuests(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.replace("Bearer ", "");
+        String email = jwtUtil.extractClaim(token, Claims::getSubject); // Extract 'sub' claim as email
+        List<Quest> userQuests = questService.findAllForUserByEmail(email);
+
+        if (userQuests.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+        return ResponseEntity.ok(userQuests);
+    }
+
+
 
     @GetMapping("/quests/{userId}")
     public ResponseEntity<List<Quest>> getQuestsForUser(@PathVariable Long userId) {
