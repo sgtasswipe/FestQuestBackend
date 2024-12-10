@@ -21,6 +21,20 @@ public class QuestParticipantService {
                         .findFirst()
                         .map(questParticipant -> {
                             String questParticipantRole = questParticipant.getRole().getName();
+                            return questParticipantRole.equals("CREATOR") || questParticipantRole.equals("ADMIN") || questParticipantRole.equals("MEMBER");
+                        })
+                        .orElse(false) // If the user doesn't have authority
+                )
+                .orElse(false);
+    }
+
+    public boolean checkIfFestUserHasAdminAuthority(long questId, FestUser festUser) {
+        return questService.findById(questId)
+                .map(quest -> quest.getQuestParticipants().stream()
+                        .filter(participant -> participant.getUser().getId() == festUser.getId())
+                        .findFirst()
+                        .map(questParticipant -> {
+                            String questParticipantRole = questParticipant.getRole().getName();
                             return questParticipantRole.equals("CREATOR") || questParticipantRole.equals("ADMIN");
                         })
                         .orElse(false) // If the user doesn't have authority

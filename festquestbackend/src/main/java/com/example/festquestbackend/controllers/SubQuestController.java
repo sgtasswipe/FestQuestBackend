@@ -41,7 +41,7 @@ public class SubQuestController {
     public ResponseEntity<Object> createSubQuest(@PathVariable long questId, @RequestBody SubQuest subQuest, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .map(festUserService::getFestUserByAuthHeader)
-                .filter(festUser -> questParticipantService.checkIfFestUserHasAuthority(questId, festUser))
+                .filter(festUser -> questParticipantService.checkIfFestUserIsAdmin(questId, festUser))
                 .map(ignored -> subQuestService.createSubQuest(questId, subQuest))
                 .map(isCreated -> isCreated ? ResponseEntity.status(HttpStatus.CREATED).build() : ResponseEntity.notFound().build())
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
@@ -61,7 +61,7 @@ public class SubQuestController {
     public ResponseEntity<Object> deleteSubQuest(@PathVariable long questId, @PathVariable long subQuestId, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .map(festUserService::getFestUserByAuthHeader)
-                .filter(festUser -> questParticipantService.checkIfFestUserIsCreator(questId, festUser))
+                .filter(festUser -> questParticipantService.checkIfFestUserHasAdminAuthority(questId, festUser))
                 .map(ignored -> subQuestService.deleteSubQuest(subQuestId))
                 .map(isDeleted -> isDeleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build())
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
