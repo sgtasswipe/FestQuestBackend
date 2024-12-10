@@ -1,41 +1,53 @@
 package com.example.festquestbackend.util;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.function.Function;
 
+import javax.crypto.SecretKey;
+
+import org.springframework.stereotype.Component;
+
+import com.example.festquestbackend.models.users.FestUser;
+import com.example.festquestbackend.services.FestUserService;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+
+@Component
 public class JwtUtil {
+    private static final long EXPIRATION_TIME = 3600000;  // Token expiration (1 hour)
+    private final FestUserService festUserService;
 
-        private static final String SECRET_KEY = "mySecretKey";  // Use a more secure key in production
-        private static final long EXPIRATION_TIME = 3600000;  // Token expiration (1 hour)
-
-        public static String generateToken(Authentication authentication) {
-            SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
-
-            return Jwts.builder()
-                    .setSubject(authentication.getName())
-                    .claim("authorities", getAuthorities(authentication)) // Add user roles
-                    .setIssuedAt(new Date())
-                    .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                    .signWith(key)
-                    .compact();
-        }
-
-        private static String getAuthorities(Authentication authentication) {
-            Set<String> roles = new HashSet<>();
-            for (GrantedAuthority authority : authentication.getAuthorities()) {
-                roles.add(authority.getAuthority());
-            }
-            return String.join(",", roles);
-        }
+    public JwtUtil(FestUserService festUserService) {
+        this.festUserService = festUserService;
     }
 
+    // Generate JWT
+    public String generateToken(String email) {
+        FestUser festUser = festUserService.findByEmail(email);
+        System.out.printf("JWT kaldt");
+
+        SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
+        return Jwts.builder().setIssuer("Deez").setSubject(festUser.getEmail()) // SHOULD BE REPLACED AND PUT IN "USERNAME"!
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(new Date().getTime() + 300000000))
+                .signWith(key).compact();
+
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8)))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+}

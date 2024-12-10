@@ -17,34 +17,34 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table ( name = "quests")
-public class  Quest {
+@Table(name = "quests")
+public class Quest {
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
-    @Column (nullable = false)
-    private  long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
+    private long id;
 
-    @Column ( nullable = false)
+    @Column(nullable = false)
     private String title;
 
-    @Column ( nullable = false)
-    private  String description;
+    @Column(nullable = false)
+    private String description;
 
-    @Column ( nullable = false, length = 1000)
+    @Column(nullable = false, length = 1000)
     private String imageUrl;
 
-    @Column ( nullable = false)
+    @Column(nullable = false)
     private LocalDateTime startTime;
 
-    @Column ( nullable = false)
+    @Column(nullable = false)
     private LocalDateTime endTime;
 
     @OneToMany(mappedBy = "quest", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // Placed on the parent (Includes the child on serialization)
     private List<QuestParticipant> questParticipants = new ArrayList<>();
 
-    @OneToMany(mappedBy = "quest", cascade =  CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // Change from @JsonBackReference to @JsonManagedReference
+    @OneToMany(mappedBy = "quest", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("quest-subquest") // Add this annotation
     private List<SubQuest> subQuestList;
 
     public Quest() {
