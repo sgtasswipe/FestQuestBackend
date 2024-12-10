@@ -51,7 +51,7 @@ public class QuestService {
                 // Filter participants to only include the current user
                 List<QuestParticipant> filteredParticipants = quest.getQuestParticipants()
                     .stream()
-                    .filter(qp -> qp.getUser().getId()==(userId))  // Use equals() for Long comparison
+                    .filter(qp -> qp.getUser().getId()==(userId))
                     .collect(Collectors.toList());
                 quest.setQuestParticipants(filteredParticipants);
                 return quest;
