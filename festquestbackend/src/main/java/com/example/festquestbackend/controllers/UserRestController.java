@@ -42,7 +42,7 @@ public class UserRestController {
         String requestEmail = request.get("email");
         String requestPassword = request.get("password");
 
-        FestUser festUser = festUserService.findByEmail(requestEmail);
+        FestUser festUser = festUserService.findByEmail(requestEmail).get();
 
         if (passwordEncoder.verify(requestPassword, festUser.getPassword())) {
             String token =  jwtUtil.generateToken(festUser.getEmail());

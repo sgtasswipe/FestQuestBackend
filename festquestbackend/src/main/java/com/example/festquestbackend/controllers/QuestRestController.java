@@ -60,7 +60,7 @@ public class QuestRestController {
         try {
             String token = authorizationHeader.replace("Bearer ", "");
             String email = jwtUtil.extractClaim(token, Claims::getSubject);
-            FestUser user = festUserService.findByEmail(email);
+            FestUser user = festUserService.findByEmail(email).get();
             if (user == null) {
                 throw new RuntimeException("User not found");
             }
