@@ -14,7 +14,7 @@ public class QuestParticipantService {
         this.questService = questService;
     }
 
-    public boolean checkIfFestUserHasAuthority(long questId, FestUser festUser) {
+    public boolean checkIfFestUserHasMemberAuthority(long questId, FestUser festUser) {
         return questService.findById(questId)
                 .map(quest -> quest.getQuestParticipants().stream()
                         .filter(participant -> participant.getUser().getId() == festUser.getId())

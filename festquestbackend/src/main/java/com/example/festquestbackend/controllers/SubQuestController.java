@@ -29,7 +29,7 @@ public class SubQuestController {
     public ResponseEntity<List<SubQuest>> getSubQuestsByQuestId(@PathVariable long questId, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .map(festUserService::getFestUserByAuthHeader)
-                .filter(festUser -> questParticipantService.checkIfFestUserHasAuthority(questId, festUser))
+                .filter(festUser -> questParticipantService.checkIfFestUserHasMemberAuthority(questId, festUser))
                 .map(ignored -> {
                     List<SubQuest> subQuests = subQuestService.findSubQuestsByQuestId(questId);
                     return ResponseEntity.ok(subQuests);
@@ -41,7 +41,7 @@ public class SubQuestController {
     public ResponseEntity<Object> createSubQuest(@PathVariable long questId, @RequestBody SubQuest subQuest, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .map(festUserService::getFestUserByAuthHeader)
-                .filter(festUser -> questParticipantService.checkIfFestUserIsAdmin(questId, festUser))
+                .filter(festUser -> questParticipantService.checkIfFestUserHasMemberAuthority(questId, festUser))
                 .map(ignored -> subQuestService.createSubQuest(questId, subQuest))
                 .map(isCreated -> isCreated ? ResponseEntity.status(HttpStatus.CREATED).build() : ResponseEntity.notFound().build())
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
@@ -51,7 +51,7 @@ public class SubQuestController {
     public ResponseEntity<Object> updateSubQuest(@PathVariable long questId, @PathVariable long subQuestId, @RequestBody SubQuest updatedSubQuest, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .map(festUserService::getFestUserByAuthHeader)
-                .filter(festUser -> questParticipantService.checkIfFestUserHasAuthority(questId, festUser))
+                .filter(festUser -> questParticipantService.checkIfFestUserHasMemberAuthority(questId, festUser))
                 .map(ignored -> subQuestService.updateSubQuest(subQuestId, updatedSubQuest))
                 .map(isUpdated -> isUpdated ? ResponseEntity.ok().build() : ResponseEntity.notFound().build())
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
