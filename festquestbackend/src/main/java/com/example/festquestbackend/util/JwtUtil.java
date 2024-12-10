@@ -2,6 +2,7 @@ package com.example.festquestbackend.util;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Optional;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
@@ -18,19 +19,16 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
     private static final long EXPIRATION_TIME = 3600000;  // Token expiration (1 hour)
-    private final FestUserService festUserService;
 
-    public JwtUtil(FestUserService festUserService) {
-        this.festUserService = festUserService;
+    public JwtUtil() {
     }
 
     // Generate JWT
     public String generateToken(String email) {
-        FestUser festUser = festUserService.findByEmail(email);
         System.out.printf("JWT kaldt");
 
         SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
-        return Jwts.builder().setIssuer("Deez").setSubject(festUser.getEmail()) // SHOULD BE REPLACED AND PUT IN "USERNAME"!
+        return Jwts.builder().setIssuer("Deez").setSubject(email) // SHOULD BE REPLACED AND PUT IN "USERNAME"!
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + 300000000))
                 .signWith(key).compact();
@@ -50,4 +48,8 @@ public class JwtUtil {
                 .getBody();
     }
 
+    public String extractEmailFromAuthHeader(String authorizationHeader) {
+        String token = authorizationHeader.replace("Bearer ", "");
+        return extractClaim(token, Claims::getSubject); // Extract subject which is the e-mail
+    }
 }
