@@ -1,40 +1,40 @@
 package com.example.festquestbackend.models.users;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "roles")
 public class Role {
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
-    @Column (nullable = false)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column (nullable = false)
-    private String type;
+    @Column(nullable = false, unique = true)
+    private String name;
 
-
-    public Role () {
-
-    }
-    public Role(long id, String type) {
-        this.id = id;
-        this.type = type;
+    // Default constructor
+    public Role() {
     }
 
-    public long getId() {
+    // Getters and Setters
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getType() {
-        return type;
+    public String getName() {
+        return name;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setName(String name) {
+        this.name = name;
     }
 }

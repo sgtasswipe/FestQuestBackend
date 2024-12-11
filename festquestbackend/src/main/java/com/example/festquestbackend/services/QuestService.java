@@ -1,10 +1,7 @@
 package com.example.festquestbackend.services;
 
-import com.example.festquestbackend.models.quests.Quest;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,9 +11,12 @@ import org.springframework.stereotype.Service;
 
 import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.models.quests.SubQuest;
-import com.example.festquestbackend.models.users.QuestParticipant;
-import com.example.festquestbackend.repositories.quests.QuestRepository;
 import com.example.festquestbackend.models.users.FestUser;
+import com.example.festquestbackend.models.users.QuestParticipant;
+import com.example.festquestbackend.models.users.Role;
+import com.example.festquestbackend.repositories.quests.QuestRepository;
+import com.example.festquestbackend.repositories.users.FestUserRepository;
+import com.example.festquestbackend.repositories.users.RoleRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -24,9 +24,17 @@ import jakarta.transaction.Transactional;
 public class QuestService {
     private final QuestRepository questRepository;
     private final FestUserService festUserService;
-    public QuestService(QuestRepository questRepository, FestUserService festUserService) {
+    private final FestUserRepository festUserRepository;
+    private final RoleRepository roleRepository; // Add this
+
+    public QuestService(QuestRepository questRepository, 
+                       FestUserService festUserService, 
+                       FestUserRepository festUserRepository,
+                       RoleRepository roleRepository) { // Add roleRepository
         this.questRepository = questRepository;
         this.festUserService = festUserService;
+        this.festUserRepository = festUserRepository;
+        this.roleRepository = roleRepository;
     }
 
     public List<Quest> findAll() {
@@ -36,13 +44,14 @@ public class QuestService {
     public List<Quest> findAllForUser(Long userId) {
         // First, get all quests where the user is a participant
         List<Quest> quests = questRepository.findDistinctByQuestParticipants_FestUserId(userId);
-
+        
+        // Return the quests even if empty - removing the temporary testing code
         return quests.stream()
             .map(quest -> {
                 // Filter participants to only include the current user
                 List<QuestParticipant> filteredParticipants = quest.getQuestParticipants()
                     .stream()
-                    .filter(qp -> qp.getUser().getId() == userId)  
+                    .filter(qp -> qp.getUser().getId()==(userId))
                     .collect(Collectors.toList());
                 quest.setQuestParticipants(filteredParticipants);
                 return quest;
@@ -70,22 +79,37 @@ public class QuestService {
     }
 
     public Quest createQuest(Quest quest, Long userId) {
-        FestUser user = festUserService.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-        
-        QuestParticipant creator = new QuestParticipant();
-        creator.setUser(user);
-        creator.setQuest(quest);
-        creator.setGoing(true);
-        
-        quest.setQuestParticipants(List.of(creator));
-        Quest savedQuest = questRepository.save(quest);
-        
-        // Debug output
-        System.out.println("Created quest with ID: " + savedQuest.getId());
-        System.out.println("Number of participants: " + savedQuest.getQuestParticipants().size());
-        
-        return savedQuest;
+        try {
+            FestUser user = festUserService.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            Role creatorRole = roleRepository.findByName("CREATOR")
+                .orElseGet(() -> {
+                    Role newRole = new Role();
+                    newRole.setName("CREATOR");
+                    return roleRepository.save(newRole);
+                });
+            
+            QuestParticipant creator = new QuestParticipant();
+            creator.setUser(user);
+            creator.setRole(creatorRole);
+            creator.setGoing(true);
+            
+            quest.setQuestParticipants(new ArrayList<>());
+            quest.getQuestParticipants().add(creator);
+            creator.setQuest(quest); // Important: Set both sides of bidirectional relationship
+            
+            Quest savedQuest = questRepository.save(quest);
+            
+            System.out.println("Created quest with ID: " + savedQuest.getId());
+            System.out.println("Number of participants: " + savedQuest.getQuestParticipants().size());
+            System.out.println("Creator role: " + creator.getRole().getName());
+            
+            return savedQuest;
+        } catch (Exception e) {
+            System.err.println("Error in createQuest: " + e.getMessage());
+            throw new RuntimeException("Failed to create quest: " + e.getMessage(), e);
+        }
     }
 
     public void validateQuestDates(Quest quest) {
@@ -127,5 +151,14 @@ public class QuestService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete quest: " + e.getMessage());
         }
+    }
+  // test method for debuggin 401 error in jwt
+    public List<Quest> findAllForUserByEmail(String email) {
+        // Find the user by their email
+        FestUser user = festUserRepository.findByEmail(email)
+                .orElseThrow(() -> new NullPointerException("User not found with email: " + email));
+
+        // Fetch quests where the user is a participant
+        return questRepository.findDistinctByQuestParticipants_FestUserId(user.getId());
     }
 }

@@ -1,5 +1,6 @@
 package com.example.festquestbackend.models.quests;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,6 +12,7 @@ public class Duty {
 
     @ManyToOne
     @JoinColumn(name = "sub_quest_id", referencedColumnName = "id", nullable = false)
+    @JsonBackReference
     private SubQuest subQuest;
 
     @Column(nullable = false)
