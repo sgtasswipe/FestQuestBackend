@@ -13,8 +13,7 @@ import com.example.festquestbackend.models.quests.Quest;
 @Repository
 public interface QuestRepository extends JpaRepository<Quest, Long> {
     Optional<Quest> findById(Long id);
-    // JpaRepository eller CrudRepository??
-
+    /*
     @Query("""
         SELECT DISTINCT q FROM Quest q 
         JOIN q.questParticipants qp 
@@ -23,6 +22,8 @@ public interface QuestRepository extends JpaRepository<Quest, Long> {
         ORDER BY q.startTime ASC
         """)
     List<Quest> findActiveQuestsByUserId(@Param("festUserId") Long festUserId);
+*/
 
+    // Finds active quests by Fest user ID
     List<Quest> findDistinctByQuestParticipants_FestUserId(Long festUserId);
 }

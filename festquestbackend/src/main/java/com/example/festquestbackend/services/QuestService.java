@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -15,25 +14,19 @@ import com.example.festquestbackend.models.users.FestUser;
 import com.example.festquestbackend.models.users.QuestParticipant;
 import com.example.festquestbackend.models.users.Role;
 import com.example.festquestbackend.repositories.quests.QuestRepository;
-import com.example.festquestbackend.repositories.users.FestUserRepository;
 import com.example.festquestbackend.repositories.users.RoleRepository;
-
-import jakarta.transaction.Transactional;
 
 @Service
 public class QuestService {
     private final QuestRepository questRepository;
     private final FestUserService festUserService;
-    private final FestUserRepository festUserRepository;
-    private final RoleRepository roleRepository; // Add this
+    private final RoleRepository roleRepository;
 
-    public QuestService(QuestRepository questRepository, 
-                       FestUserService festUserService, 
-                       FestUserRepository festUserRepository,
-                       RoleRepository roleRepository) { // Add roleRepository
+    public QuestService(QuestRepository questRepository,
+                        FestUserService festUserService,
+                        RoleRepository roleRepository) {
         this.questRepository = questRepository;
         this.festUserService = festUserService;
-        this.festUserRepository = festUserRepository;
         this.roleRepository = roleRepository;
     }
 
@@ -41,70 +34,37 @@ public class QuestService {
         return questRepository.findAll();
     }
 
-    public List<Quest> findAllForUser(Long userId) {
-        // First, get all quests where the user is a participant
-        List<Quest> quests = questRepository.findDistinctByQuestParticipants_FestUserId(userId);
-        
-        // Return the quests even if empty - removing the temporary testing code
-        return quests.stream()
-            .map(quest -> {
-                // Filter participants to only include the current user
-                List<QuestParticipant> filteredParticipants = quest.getQuestParticipants()
-                    .stream()
-                    .filter(qp -> qp.getUser().getId()==(userId))  // Use equals() for Long comparison
-                    .collect(Collectors.toList());
-                quest.setQuestParticipants(filteredParticipants);
-                return quest;
-            })
-            .collect(Collectors.toList());
-    }
-
     public Optional<Quest> findById(long id) {
         return questRepository.findById(id);
-    }
-
-
-    public Optional<Quest> save(Quest quest) {
-        try {
-            validateQuestDates(quest);
-            Quest savedQuest = questRepository.save(quest);
-            return Optional.of(savedQuest);
-        } catch (IllegalArgumentException e) {
-            System.err.println("Error saving quest: " + e.getMessage());
-            return Optional.empty();
-        } catch (Exception e) {
-            System.err.println("Error saving quest: " + e.getMessage());
-            throw e; // Re-throw to be caught by controller
-        }
     }
 
     public Quest createQuest(Quest quest, Long userId) {
         try {
             FestUser user = festUserService.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-            
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
             Role creatorRole = roleRepository.findByName("CREATOR")
-                .orElseGet(() -> {
-                    Role newRole = new Role();
-                    newRole.setName("CREATOR");
-                    return roleRepository.save(newRole);
-                });
-            
+                    .orElseGet(() -> {
+                        Role newRole = new Role();
+                        newRole.setName("CREATOR");
+                        return roleRepository.save(newRole);
+                    });
+
             QuestParticipant creator = new QuestParticipant();
             creator.setUser(user);
             creator.setRole(creatorRole);
             creator.setGoing(true);
-            
+
             quest.setQuestParticipants(new ArrayList<>());
             quest.getQuestParticipants().add(creator);
             creator.setQuest(quest); // Important: Set both sides of bidirectional relationship
-            
+
             Quest savedQuest = questRepository.save(quest);
-            
+
             System.out.println("Created quest with ID: " + savedQuest.getId());
             System.out.println("Number of participants: " + savedQuest.getQuestParticipants().size());
             System.out.println("Creator role: " + creator.getRole().getName());
-            
+
             return savedQuest;
         } catch (Exception e) {
             System.err.println("Error in createQuest: " + e.getMessage());
@@ -124,16 +84,16 @@ public class QuestService {
     public void updateQuest(Quest updatedQuest, Quest existingQuest) {
         try {
             validateQuestDates(updatedQuest);
-            
+
             // Save the existing subQuestList
             List<SubQuest> existingSubQuests = existingQuest.getSubQuestList();
-            
+
             // Copy properties excluding id and relationships
             BeanUtils.copyProperties(updatedQuest, existingQuest, "id", "subQuestList", "questParticipants");
-            
+
             // Restore the subQuestList
             existingQuest.setSubQuestList(existingSubQuests);
-            
+
             questRepository.save(existingQuest);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
@@ -141,7 +101,6 @@ public class QuestService {
         }
     }
 
-    @Transactional
     public void deleteQuest(Quest quest) {
         try {
             // Clear relationships to ensure clean deletion
@@ -152,10 +111,10 @@ public class QuestService {
             throw new RuntimeException("Failed to delete quest: " + e.getMessage());
         }
     }
-  // test method for debuggin 401 error in jwt
-    public List<Quest> findAllForUserByEmail(String email) {
+
+    public List<Quest> findAllQuestsForUserByEmail(String email) {
         // Find the user by their email
-        FestUser user = festUserRepository.findByEmail(email)
+        FestUser user = festUserService.findByEmail(email)
                 .orElseThrow(() -> new NullPointerException("User not found with email: " + email));
 
         // Fetch quests where the user is a participant
