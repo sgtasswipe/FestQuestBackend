@@ -18,6 +18,10 @@ jobs:
         with:
           distribution: 'corretto' 
           java-version: '21'
+      
+      - name: Set executable permission for Maven wrapper
+        run: chmod +x ./festquestbackend/mvnw
+
 
       - name: Build the JAR file
         run: |
