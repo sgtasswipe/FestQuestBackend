@@ -21,7 +21,6 @@ jobs:
 
       - name: Build the JAR file
         run: |
-          cd festquestbackend
           ./mvnw clean package -DskipTests
           mkdir -p /root/jar # Ensure the jar folder exists
            mv target/*.jar /root/jar/
