@@ -18,7 +18,7 @@ public class GlobalCorsConfig {
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // Allow specific HTTP methods
                         .allowedHeaders("Authorization", "Content-Type", "Accept")  // Allow specific headers
                         .exposedHeaders("Authorization")  // Expose headers. Makes it possible to retrieve the Authorization header in the frontend
-                        .allowCredentials(false);  // Allow credentials if needed
+                        .allowCredentials(true);  // Allow credentials if needed
             }
         };
     }
