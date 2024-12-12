@@ -22,7 +22,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no azureuser@${{ secrets.AZURE_VM_IP }} << 'EOF'
             # Navigate to the directory where the repositories are stored
-            cd /path/to/repositories
+            
 
             # Remove existing repositories if they exist
             rm -rf FestQuestFrontend
