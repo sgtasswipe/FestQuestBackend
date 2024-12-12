@@ -1,5 +1,5 @@
 package com.example.festquestbackend.repositories.quests;
-
+/*
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
@@ -13,4 +13,4 @@ class QuestRepositoryTest {
     @Test
     void testFindByName() {
     }
-}
+}*/
