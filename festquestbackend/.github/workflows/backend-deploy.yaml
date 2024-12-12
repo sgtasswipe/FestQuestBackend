@@ -1,4 +1,4 @@
-name: Deploy Backend
+name: Build and Deploy on Azure VM
 
 on:
   push:
@@ -13,40 +13,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
         with:
-          distribution: 'corretto'
-          java-version: '21'
+          ssh-private-key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
 
-      - name: Set executable permission for Maven wrapper
-        run: chmod +x ./festquestbackend/mvnw
-
-      - name: Build the JAR file
+      - name: SSH into Azure VM, Remove Repositories, Clone, Build, and Deploy
         run: |
-          cd festquestbackend
-          ./mvnw clean package -DskipTests
+          ssh -o StrictHostKeyChecking=no azureuser@${{ secrets.AZURE_VM_IP }} << 'EOF'
+            # Navigate to the directory where the repositories are stored
+           
 
-      - name: Build Docker image
-        run: |
-          docker build -t Otro0001@stud.kea.dk/festquest-backend:latest ./festquestbackend
+            # Remove existing repositories if they exist
+            rm -rf FestQuestFrontend
+            rm -rf FestQuestBackend
 
-      - name: Push Docker image to Docker Hub
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker push Otro0001@stud.kea.dk/festquest-backend:latest
+            # Clone the latest versions of the repositories
+            git clone https://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@github.com/sgtasswipe/FestQuestFrontend
+            git clone https://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@github.com/sgtasswipe/FestQuestBackend
 
-      - name: Log in to Azure VM and deploy
-        run: |
-          ssh -i ${{ secrets.AZURE_SSH_PRIVATE_KEY }} azureuser@${{ secrets.AZURE_VM_IP }} << 'EOF'
-            cd ~/FestQuestBackend
-            docker pull Otro0001@stud.kea.dk/festquest-backend:latest
+            # Navigate to the backend directory, build the Docker image, and start the container
+            cd FestQuestBackend
+            docker build -t festquest-backend:latest .
             docker stop festquest-backend || true
             docker rm festquest-backend || true
-            docker run -d --name festquest-backend -p 8080:8080 Otro0001@stud.kea.dk/festquest-backend:latest
+            docker run -d --name festquest-backend -p 8080:8080 festquest-backend:latest
+
+            # Navigate to the frontend directory, build the Docker image, and start the container
+            cd ../FestQuestFrontend/src/docker
+            docker build -t festquest-frontend:latest .
+            docker stop festquest-frontend || true
+            docker rm festquest-frontend || true
+            docker run -d --name festquest-frontend -p 80:80 festquest-frontend:latest
           EOF
         env:
           AZURE_SSH_PRIVATE_KEY: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
