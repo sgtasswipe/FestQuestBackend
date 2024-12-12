@@ -15,8 +15,11 @@ jobs:
 
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
+        env:
+          AZURE_SSH_PRIVATE_KEY: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
+          AZURE_VM_IP: ${{ secrets.AZURE_VM_IP }}
         with:
-          ssh-private-key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
+          ssh-private-key: AZURE_SSH_PRIVATE_KEY
 
       - name: SSH into Azure VM, Remove Repositories, Clone, Build, and Deploy
         run: |
@@ -46,6 +49,4 @@ jobs:
             docker rm festquest-frontend || true
             docker run -d --name festquest-frontend -p 80:80 festquest-frontend:latest
           EOF
-        env:
-          AZURE_SSH_PRIVATE_KEY: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
-          AZURE_VM_IP: ${{ secrets.AZURE_VM_IP }}
+        
