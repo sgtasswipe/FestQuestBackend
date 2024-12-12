@@ -22,12 +22,10 @@ jobs:
       - name: Set executable permission for Maven wrapper
         run: chmod +x ./festquestbackend/mvnw
 
-
       - name: Build the JAR file
         run: |
           cd festquestbackend
           ./mvnw clean package -DskipTests
-
 
       - name: Build Docker image
         run: |
@@ -38,18 +36,18 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker push myusername/festquest-backend:latest
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker push Otro0001@stud.kea.dk/festquest-backend:latest
 
       - name: Log in to Azure VM and deploy
+        run: |
           ssh -i ${{ secrets.AZURE_SSH_PRIVATE_KEY }} azureuser@${{ secrets.AZURE_VM_IP }} << 'EOF'
-          cd ~/FestQuestBackend
-          docker pull Otro0001@stud.kea.dk/festquest-backend:latest
-          docker stop festquest-backend || true
-          docker rm festquest-backend || true
-          docker run -d --name festquest-backend -p 8080:8080 Otro0001@stud.kea.dk/festquest-backend:latest
+            cd ~/FestQuestBackend
+            docker pull Otro0001@stud.kea.dk/festquest-backend:latest
+            docker stop festquest-backend || true
+            docker rm festquest-backend || true
+            docker run -d --name festquest-backend -p 8080:8080 Otro0001@stud.kea.dk/festquest-backend:latest
           EOF
-
         env:
           AZURE_SSH_PRIVATE_KEY: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
           AZURE_VM_IP: ${{ secrets.AZURE_VM_IP }}
