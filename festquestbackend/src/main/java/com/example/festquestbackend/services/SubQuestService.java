@@ -20,6 +20,11 @@ public class SubQuestService {
         return subQuestRepository.findSubQuestsByQuestId(questId);
     }
 
+    public SubQuest findById(long subQuestId) {
+        return subQuestRepository.findById(subQuestId)
+                .orElse(null);
+    }
+
     public boolean createSubQuest(Long questId, SubQuest subQuest) {
         return questService.findById(questId)
                 .map(quest -> {
