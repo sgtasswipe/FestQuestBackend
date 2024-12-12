@@ -18,7 +18,7 @@ public class GlobalCorsConfig {
 //                                http://localhost:63342", "http://127.0.0.1:5500", "http://localhost:5500")  // Allow frontend origin
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // Allow specific HTTP methods
                         .allowedHeaders("Authorization", "Content-Type", "Accept")  // Allow specific headers
-                        .exposedHeaders("Authorization")  // Expose headers
+                        .exposedHeaders("Authorization")  // Expose headers. Makes it possible to retrieve the Authorization header in the frontend
                         .allowCredentials(false);  // Allow credentials if needed
 
             }

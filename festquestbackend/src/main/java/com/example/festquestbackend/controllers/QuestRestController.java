@@ -2,51 +2,44 @@ package com.example.festquestbackend.controllers;
 
 import java.util.List;
 import java.util.Optional;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 
+import io.jsonwebtoken.Claims;
 import com.example.festquestbackend.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.*;
-
 import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.services.QuestService;
 
-import java.security.Principal;
 
-// Controller
 @RestController
-@RequestMapping("/questboard")
-@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500" , "http://localhost:63342"})
+@RequestMapping("/questboard")   // every endpoint will start with /questboard
+@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500", "http://localhost:63342"})
 public class QuestRestController {
     private final QuestService questService;
 
     private final JwtUtil jwtUtil;
+
     public QuestRestController(QuestService questService, JwtUtil jwtUtil) {
-    this.questService = questService;
-    this.jwtUtil = jwtUtil;
+        this.questService = questService;
+        this.jwtUtil = jwtUtil;
     }
 
-    @GetMapping("/questboard")
-    public List<Quest> getQuestboard() {
-      return questService.findAll();
+    @GetMapping("/all")  // GET /questboard/all instead of /questboard/questboard
+    public List<Quest> findAllQuests() {
+        return questService.findAll();
     }
 
     @GetMapping("/quest/{id}")
-    public ResponseEntity<Quest> getQuest(@PathVariable long id) {
+    public ResponseEntity<Quest> getQuestById(@PathVariable long id) {
         return questService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/quest")
-    public ResponseEntity<?> createQuestFunc(@RequestBody Quest quest) {
+    public ResponseEntity<?> createQuest(@RequestBody Quest quest) {
         try {
-            System.out.println("Received quest data: " + quest);
             Optional<Quest> savedQuest = questService.save(quest);
             return savedQuest
                     .map(ResponseEntity::ok)
@@ -58,7 +51,7 @@ public class QuestRestController {
         }
     }
 
-    @PutMapping ("/quest/{id}")
+    @PutMapping("/quest/{id}")
     public ResponseEntity<Quest> updateQuest(@PathVariable long id, @RequestBody Quest updatedQuest) {
         return questService.findById(id)
                 .map(existingQuest -> {
@@ -71,15 +64,15 @@ public class QuestRestController {
     public ResponseEntity<?> deleteQuest(@PathVariable long id) {
         try {
             return questService.findById(id)
-                .map(quest -> {
-                    questService.deleteQuest(quest);
-                    return ResponseEntity.ok().build();
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                    .map(quest -> {
+                        questService.deleteQuest(quest);
+                        return ResponseEntity.ok().build();
+                    })
+                    .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
             return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error deleting quest: " + e.getMessage());
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting quest: " + e.getMessage());
         }
     }
 
@@ -94,13 +87,5 @@ public class QuestRestController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(userQuests);
-    }
-
-
-
-    @GetMapping("/quests/{userId}")
-    public ResponseEntity<List<Quest>> getQuestsForUser(@PathVariable Long userId) {
-        List<Quest> quests = questService.findAllForUser(userId);
-        return ResponseEntity.ok(quests);
     }
 }

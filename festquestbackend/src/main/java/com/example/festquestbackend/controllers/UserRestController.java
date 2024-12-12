@@ -12,17 +12,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500" , "http://localhost:63342"})
+@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500", "http://localhost:63342"})
 
 
 @RestController
 //@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"}, allowCredentials = "true")
 public class UserRestController {
     private final FestUserService festUserService;
-
-
-   private final JwtUtil jwtUtil;
-   private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     public UserRestController(FestUserService festUserService, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.festUserService = festUserService;
@@ -37,28 +35,25 @@ public class UserRestController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/dologin")
-    public ResponseEntity<String> doLogin(@RequestBody Map<String, String> request, HttpServletResponse response) {
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody Map<String, String> request, HttpServletResponse response) {
         String requestEmail = request.get("email");
         String requestPassword = request.get("password");
 
         FestUser festUser = festUserService.findByEmail(requestEmail);
 
         if (passwordEncoder.verify(requestPassword, festUser.getPassword())) {
-            String token =  jwtUtil.generateToken(festUser.getEmail());
-            System.out.println("TOKEN: " + token);
+            String token = jwtUtil.generateToken(festUser.getEmail());
             response.setHeader("Authorization", token);
             return ResponseEntity.ok("Login successful" + token);
-        }
-        else {
-           return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 
-    @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/signup")
     public ResponseEntity<String> signup(@RequestBody FestUser festUser) {
         try {
-            System.out.println("recevied data" + festUser);
             festUserService.createUser(festUser);
             return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
         } catch (Exception e) {
