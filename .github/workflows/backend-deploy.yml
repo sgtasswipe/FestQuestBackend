@@ -32,7 +32,7 @@ jobs:
       - name: Build Docker image for backend
         run: |
           ls
-          cd src/main/java/com/example/festquestbackend/docker
+          cd festquestbackend/src/main/java/com/example/festquestbackend/docker
           docker build -t festquest-backend .
 
       - name: Log in to Azure VM and deploy
