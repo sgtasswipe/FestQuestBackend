@@ -17,7 +17,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
 @Component
-public class JwtUtil {
+public class   JwtUtil {
     private static final long EXPIRATION_TIME = 3600000;  // Token expiration (1 hour)
 
     public JwtUtil() {

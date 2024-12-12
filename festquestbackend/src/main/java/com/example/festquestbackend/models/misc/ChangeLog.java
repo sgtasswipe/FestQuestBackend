@@ -22,7 +22,7 @@ public class ChangeLog {
     @JoinColumn(name = "fest_user_id", referencedColumnName = "id", nullable = false)
     private FestUser festUser;
 
-//  Constructor
+
     public ChangeLog() {
     }
 

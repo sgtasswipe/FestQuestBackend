@@ -37,7 +37,7 @@ public class SubQuestController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
-    @PostMapping(value = "/sub-quest", consumes = {"application/json", "application/json;charset=UTF-8"})
+    @PostMapping(value = "/sub-quest")
     public ResponseEntity<Object> createSubQuest(@PathVariable long questId, @RequestBody SubQuest subQuest, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .map(festUserService::getFestUserByAuthHeader)

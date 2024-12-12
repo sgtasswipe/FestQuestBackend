@@ -1,16 +1,13 @@
 package com.example.festquestbackend.services;
 
 import com.example.festquestbackend.models.users.FestUser;
-import com.example.festquestbackend.repositories.users.QuestParticipantRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class QuestParticipantService {
-    private final QuestParticipantRepository questParticipantRepository;
     private final QuestService questService;
 
-    public QuestParticipantService(QuestParticipantRepository questParticipantRepository, QuestService questService) {
-        this.questParticipantRepository = questParticipantRepository;
+    public QuestParticipantService(QuestService questService) {
         this.questService = questService;
     }
 
