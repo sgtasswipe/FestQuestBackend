@@ -1,0 +1,39 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+
+      - name: Build the JAR file
+        run: |
+          cd backend
+          ./mvnw clean package -DskipTests
+
+      - name: Build Docker image for backend
+        run: |
+          docker build -t festquest-backend .
+
+      - name: Log in to Azure VM and deploy
+        run: |
+          ssh -i ${{ secrets.AZURE_SSH_PRIVATE_KEY }} azureuser@${{ secrets.AZURE_VM_IP }} << 'EOF'
+            cd ~/FestQuestBackend
+            docker-compose down  # Stop the existing containers if running
+            docker-compose up -d  # Restart with the new image
+          EOF
+        env:
+          AZURE_SSH_PRIVATE_KEY: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
+          AZURE_VM_IP: ${{ secrets.AZURE_VM_IP }}
