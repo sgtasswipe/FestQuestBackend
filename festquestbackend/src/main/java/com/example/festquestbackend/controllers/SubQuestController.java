@@ -23,29 +23,25 @@ public class SubQuestController {
     }
 
     @GetMapping("/sub-quests")
-    public ResponseEntity<List<SubQuest>> getSubQuestsByQuestId(@PathVariable Long questId, @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<List<SubQuest>> getSubQuestsByQuestId(@PathVariable long questId, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .filter(ignored -> roleService.validateAuthorization(authorizationHeader, questId, RoleService.MEMBER))
-                .map(ignored -> {
-                    List<SubQuest> subQuests = subQuestService.findSubQuestsByQuestId(questId);
-                    return ResponseEntity.ok(subQuests);
-                })
+                .flatMap(ignored -> subQuestService.findSubQuests(questId))
+                .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
     @GetMapping("/sub-quest/{subQuestId}")
-    public ResponseEntity<SubQuest> getSubQuestById(@PathVariable Long questId, @PathVariable Long subQuestId, @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<SubQuest> getSubQuestById(@PathVariable long questId, @PathVariable long subQuestId, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .filter(ignored -> roleService.validateAuthorization(authorizationHeader, questId,  RoleService.MEMBER))
-                .map(ignored -> {
-                    SubQuest subQuest = subQuestService.findById(subQuestId);
-                    return ResponseEntity.ok(subQuest);
-                })
+                .flatMap(ignored -> subQuestService.findByIdAndQuestId(subQuestId, questId)) // Unwraps Optional, in this case Optional<SubQuest>
+                .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
     @PostMapping("/sub-quest")
-    public ResponseEntity<Object> createSubQuest(@PathVariable Long questId, @RequestBody SubQuest subQuest, @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<Object> createSubQuest(@PathVariable long questId, @RequestBody SubQuest subQuest, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .filter(ignored -> roleService.validateAuthorization(authorizationHeader, questId, RoleService.ADMIN))
                 .map(ignored -> subQuestService.createSubQuest(questId, subQuest))
@@ -54,19 +50,20 @@ public class SubQuestController {
     }
 
     @PutMapping("/sub-quest/{subQuestId}")
-    public ResponseEntity<Object> updateSubQuest(@PathVariable Long questId, @PathVariable Long subQuestId, @RequestBody SubQuest updatedSubQuest, @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<Object> updateSubQuest(@PathVariable long questId, @PathVariable long subQuestId, @RequestBody SubQuest updatedSubQuest, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .filter(ignored -> roleService.validateAuthorization(authorizationHeader, questId, RoleService.ADMIN))
-                .map(ignored -> subQuestService.updateSubQuest(subQuestId, updatedSubQuest))
+                .flatMap(ignored -> subQuestService.findByIdAndQuestId(subQuestId, questId)) // Check if the sub quest exists
+                .map(ignored -> subQuestService.updateSubQuest(subQuestId, questId, updatedSubQuest)) // If it does, update sub quest
                 .map(isUpdated -> isUpdated ? ResponseEntity.ok().build() : ResponseEntity.notFound().build())
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
     @DeleteMapping("/sub-quest/{subQuestId}")
-    public ResponseEntity<Object> deleteSubQuest(@PathVariable Long questId, @PathVariable Long subQuestId, @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<Object> deleteSubQuest(@PathVariable long questId, @PathVariable long subQuestId, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .filter(ignored -> roleService.validateAuthorization(authorizationHeader, questId, RoleService.ADMIN))
-                .map(ignored -> subQuestService.deleteSubQuest(subQuestId))
+                .map(ignored -> subQuestService.deleteSubQuest(subQuestId, questId))
                 .map(isDeleted -> isDeleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build())
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
