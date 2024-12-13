@@ -1,42 +1,34 @@
-/*package com.example.festquestbackend.controllers;
+package com.example.festquestbackend.controllers;
 
 import com.example.festquestbackend.models.users.FestUser;
 import com.example.festquestbackend.repositories.users.FestUserRepository;
 import com.example.festquestbackend.services.FestUserService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
 
 import java.util.Optional;
 
-
-@WebMvcTest(UserRestControllerTest.class)// Controller test.
+@Profile("test")
+@SpringBootTest
 class UserRestControllerTest {
+    @Autowired
+    private FestUserService  userService;
+    @Autowired
+    private FestUserRepository userRepository;
 
-//    private final UserService userService;
-    //private final FestUserRepository userRepository;
-    private final FestUserRepository userRepository;
-
-    public UserRestControllerTest(FestUserService userService, FestUserRepository userRepository) {
-//        this.userService = userService;
-        this.userRepository = userRepository;
-    }
 
     // Test HTTP 200, 404 etc
     @Test
-    void testCreateAndFindById() {
-        FestUser user = new FestUser();
-        user.setFirstName("Dragonslayer");
-        user.setLastName("TenThousand");
-        user.setEmail("DragonSlayerOverTenThousand@Mailmail.cum");
-        user.setPassword("BigDickClub69");
-
-        FestUser savedUser = userRepository.save(user);
-        Optional<FestUser> foundUser = userRepository.findById(savedUser.getId());
+    void testFindByEmail() {
+        String email = "DragonSlayerOverTenThousand@Mailmail.cum";
+        Optional<FestUser> foundUser = userService.findByEmail(email);
 
         // Actual tests.
         Assertions.assertTrue(foundUser.isPresent());
-        Assertions.assertEquals(savedUser.getId(), foundUser.get().getId());
     }
 
     @Test
@@ -44,4 +36,3 @@ class UserRestControllerTest {
 //        assertEquals(userService.findAll()) > 0;
     }
 }
-    */

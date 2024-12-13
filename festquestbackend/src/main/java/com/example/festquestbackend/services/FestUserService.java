@@ -5,7 +5,6 @@ import com.example.festquestbackend.models.users.FestUser;
 import com.example.festquestbackend.repositories.users.FestUserRepository;
 import com.example.festquestbackend.util.JwtUtil;
 import com.example.festquestbackend.util.PasswordEncoder;
-import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,21 +22,8 @@ public class FestUserService {
         this.jwtUtil = jwtUtil;
     }
 
-    public List<FestUser> findAll() {
-        return festUserRepository.findAll();
-    }
-
     public Optional<FestUser> findById(long id) {
         return festUserRepository.findById(id);
-    }
-
-
-    public FestUser validateUserLogin(String email, String password) {
-        FestUser festUser = festUserRepository.findByEmail(email).get();
-        if (!password.matches(festUser.getPassword()))
-            throw new IllegalArgumentException("Invaild email or password");
-
-        return festUser;
     }
 
     public Optional<FestUser> findByEmail(String email) {
@@ -47,9 +33,6 @@ public class FestUserService {
     public void createUser(FestUser festUser) {
         String hashedPwd = passwordEncoder.encode(festUser.getPassword());
         festUser.setPassword(hashedPwd);
-
-        // Give a new user ROLE_USER by default (Spring security)
-        // festUser.setRole("ROLE_USER");
         festUserRepository.save(festUser);
     }
 

@@ -1,28 +1,23 @@
 package com.example.festquestbackend.controllers;
-/*
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.festquestbackend.models.quests.Quest;
 import com.example.festquestbackend.repositories.quests.QuestRepository;
 import com.example.festquestbackend.services.QuestService;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@WebMvcTest(QuestRestController.class) // Changed from QuestRestControllerTest.class to QuestRestController.class
+@SpringBootTest
 class QuestRestControllerTest {
-
-    final QuestService questService;
-    final QuestRepository questRepository;
-
-//    To validate HTTP endpoints, request handling, and status codes. + integrati
-
-    public QuestRestControllerTest(QuestService questService, QuestRepository questRepository){
-        this.questService = questService;
-        this.questRepository = questRepository;
-    }
+    @Autowired
+    QuestService questService;
+    @Autowired
+    QuestRepository questRepository;
 
     @Test
     void testCreateAndFindById() {
@@ -33,7 +28,7 @@ class QuestRestControllerTest {
         quest.setStartTime(LocalDateTime.now());
         quest.setEndTime(LocalDateTime.now().plusDays(100));
 
-        Quest savedQuest = questRepository.save(quest); // Auto-generated ID
+        Quest savedQuest = questRepository.save(quest);
         Optional<Quest> foundQuest = questRepository.findById(savedQuest.getId());
 
         // Actual tests.
@@ -60,4 +55,4 @@ class QuestRestControllerTest {
     @Test
     void deleteQuest() {
     }
-}*/
+}

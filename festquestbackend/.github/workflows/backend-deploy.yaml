@@ -1,0 +1,51 @@
+name: Build and Deploy on Azure VM
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
+
+      - name: SSH into Azure VM, Remove Repositories, Clone, Build, and Deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no azureuser@${{ secrets.AZURE_VM_IP }} << 'EOF'
+            # Navigate to the directory where the repositories are stored
+            cd /path/to/repositories
+
+            # Remove existing repositories if they exist
+            rm -rf FestQuestFrontend
+            rm -rf FestQuestBackend
+
+            # Clone the latest versions of the repositories
+            git clone https://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@github.com/sgtasswipe/FestQuestFrontend
+            git clone https://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@github.com/sgtasswipe/FestQuestBackend
+
+            # Navigate to the backend directory, build the Docker image, and start the container
+            cd FestQuestBackend
+            docker build -t festquest-backend:latest .
+            docker stop festquest-backend || true
+            docker rm festquest-backend || true
+            docker run -d --name festquest-backend -p 8080:8080 festquest-backend:latest
+
+            # Navigate to the frontend directory, build the Docker image, and start the container
+            cd ../FestQuestFrontend/src/docker
+            docker build -t festquest-frontend:latest .
+            docker stop festquest-frontend || true
+            docker rm festquest-frontend || true
+            docker run -d --name festquest-frontend -p 80:80 festquest-frontend:latest
+          EOF
+        env:
+          AZURE_SSH_PRIVATE_KEY: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
+          AZURE_VM_IP: ${{ secrets.AZURE_VM_IP }}
