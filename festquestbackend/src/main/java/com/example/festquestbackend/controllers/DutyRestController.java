@@ -13,11 +13,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/quest/{questId}/sub-quest/{subQuestId}")
 @CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500" , "http://localhost:63342"})
-public class DutyController {
+public class DutyRestController {
     private final DutyService dutyService;
     private final RoleService roleService;
 
-    public DutyController(DutyService dutyService, RoleService roleService) {
+    public DutyRestController(DutyService dutyService, RoleService roleService) {
         this.dutyService = dutyService;
         this.roleService = roleService;
     }
