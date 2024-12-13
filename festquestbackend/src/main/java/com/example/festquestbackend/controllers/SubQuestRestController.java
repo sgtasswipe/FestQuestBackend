@@ -53,8 +53,7 @@ public class SubQuestRestController {
     public ResponseEntity<Object> updateSubQuest(@PathVariable long questId, @PathVariable long subQuestId, @RequestBody SubQuest updatedSubQuest, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .filter(ignored -> roleService.validateAuthorization(authorizationHeader, questId, RoleService.ADMIN))
-                .flatMap(ignored -> subQuestService.findByIdAndQuestId(subQuestId, questId)) // Check if the sub quest exists
-                .map(ignored -> subQuestService.updateSubQuest(subQuestId, questId, updatedSubQuest)) // If it does, update sub quest
+                .map(ignored -> subQuestService.updateSubQuest(subQuestId, questId, updatedSubQuest))
                 .map(isUpdated -> isUpdated ? ResponseEntity.ok().build() : ResponseEntity.notFound().build())
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
