@@ -39,6 +39,9 @@ public class Quest {
     @Column(nullable = false)
     private LocalDateTime endTime;
 
+    @Column(unique = true)
+    private String shareToken;
+
     @OneToMany(mappedBy = "quest", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // Placed on the parent (Includes the child on serialization)
     private List<QuestParticipant> questParticipants = new ArrayList<>();
@@ -123,6 +126,14 @@ public class Quest {
 
     public void setSubQuestList(List<SubQuest> subQuestList) {
         this.subQuestList = subQuestList;
+    }
+
+    public String getShareToken() {
+        return shareToken;
+    }
+
+    public void setShareToken(String shareToken) {
+        this.shareToken = shareToken;
     }
 
 }

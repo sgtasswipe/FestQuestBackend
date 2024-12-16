@@ -32,8 +32,7 @@ public class UserRestController {
     }
 
     @GetMapping("/user/{id}") // TODO User or Users here?
-    public ResponseEntity<FestUser> getUser(@RequestParam long id) {
-        return festUserService.findById(id)
+    public ResponseEntity<FestUser> getUser(@RequestParam long id) {        return festUserService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
