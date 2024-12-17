@@ -82,7 +82,7 @@ public class QuestService {
             throw new IllegalArgumentException("Start time cannot be in the past");
     }
 
-    public void updateQuest(Quest updatedQuest, Quest existingQuest) {
+    public Optional<Quest> updateQuest(Quest updatedQuest, Quest existingQuest) {
         try {
             validateQuestDates(updatedQuest);
 
@@ -96,18 +96,20 @@ public class QuestService {
             existingQuest.setSubQuestList(existingSubQuests);
 
             questRepository.save(existingQuest);
+            return Optional.of(existingQuest);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
             throw e;
         }
     }
 
-    public void deleteQuest(Quest quest) {
+    public Optional<Quest> deleteQuest(Quest quest) {
         try {
             // Clear relationships to ensure clean deletion
             quest.getQuestParticipants().clear();
             quest.getSubQuestList().clear();
             questRepository.delete(quest);
+            return Optional.of(quest);
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete quest: " + e.getMessage());
         }

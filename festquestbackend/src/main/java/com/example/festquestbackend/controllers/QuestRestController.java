@@ -1,10 +1,9 @@
 package com.example.festquestbackend.controllers;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import com.example.festquestbackend.services.RoleService;
+import com.example.festquestbackend.services.SubQuestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -33,11 +32,13 @@ public class QuestRestController {
     private final QuestService questService;
     private final JwtUtil jwtUtil;
     private final FestUserService festUserService;
+    private final RoleService roleService;
 
-    public QuestRestController(QuestService questService, JwtUtil jwtUtil, FestUserService festUserService) {
+    public QuestRestController(QuestService questService, JwtUtil jwtUtil, FestUserService festUserService, RoleService roleService) {
         this.questService = questService;
         this.jwtUtil = jwtUtil;
         this.festUserService = festUserService;
+        this.roleService = roleService;
     }
 
     @GetMapping("/all")  // GET /questboard/all instead of /questboard/questboard
@@ -46,10 +47,12 @@ public class QuestRestController {
     }
 
     @GetMapping("/quest/{id}")
-    public ResponseEntity<Quest> getQuestById(@PathVariable long id) {
-        return questService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Quest> getQuestById(@PathVariable long id, @RequestHeader("Authorization") String authorizationHeader) {
+        return Optional.of(authorizationHeader)
+                        .filter(ignored -> roleService.validateAuthorization(authorizationHeader, id, RoleService.MEMBER))
+                        .flatMap(ignored -> questService.findById(id))
+                        .map(ResponseEntity::ok)
+                        .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
     @PostMapping(value = "/quest", consumes = {"application/json", "application/json;charset=UTF-8"})
@@ -64,40 +67,33 @@ public class QuestRestController {
             if (user == null) {
                 throw new RuntimeException("User not found");
             }
-
             Quest savedQuest = questService.createQuest(quest, user.getId());
             return ResponseEntity.ok(savedQuest);
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error creating quest: " + e.getMessage());
-
         }
     }
 
     @PutMapping("/quest/{id}")
-    public ResponseEntity<Quest> updateQuest(@PathVariable long id, @RequestBody Quest updatedQuest) {
-        return questService.findById(id)
-                .map(existingQuest -> {
-                    questService.updateQuest(updatedQuest, existingQuest);
-                    return ResponseEntity.ok(updatedQuest);
-                }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    public ResponseEntity<Quest> updateQuest(@PathVariable long id, @RequestBody Quest updatedQuest, @RequestHeader("Authorization") String authorizationHeader) {
+        return Optional.of(authorizationHeader)
+                        .filter(ignored -> roleService.validateAuthorization(authorizationHeader, id, RoleService.CREATOR))
+                        .flatMap(ignored -> questService.findById(id))
+                        .flatMap(existingQuest -> questService.updateQuest(updatedQuest, existingQuest))
+                        .map(isUpdated -> ResponseEntity.ok(updatedQuest))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
     @DeleteMapping("/quest/{id}")
-    public ResponseEntity<?> deleteQuest(@PathVariable long id) {
-        try {
-            return questService.findById(id)
-                    .map(quest -> {
-                        questService.deleteQuest(quest);
-                        return ResponseEntity.ok().build();
-                    })
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error deleting quest: " + e.getMessage());
-        }
+    public ResponseEntity<Quest> deleteQuest(@PathVariable long id, @RequestHeader("Authorization") String authorizationHeader) {
+        return Optional.of(authorizationHeader)
+                .filter(ignored -> roleService.validateAuthorization(authorizationHeader, id, RoleService.CREATOR))
+                .flatMap(ignored -> questService.findById(id))
+                .flatMap(questService::deleteQuest)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
     @GetMapping("/quests")
