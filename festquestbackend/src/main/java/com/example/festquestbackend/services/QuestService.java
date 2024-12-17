@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -81,7 +82,7 @@ public class QuestService {
             throw new IllegalArgumentException("Start time cannot be in the past");
     }
 
-    public void updateQuest(Quest updatedQuest, Quest existingQuest) {
+    public Optional<Quest> updateQuest(Quest updatedQuest, Quest existingQuest) {
         try {
             validateQuestDates(updatedQuest);
 
@@ -95,18 +96,20 @@ public class QuestService {
             existingQuest.setSubQuestList(existingSubQuests);
 
             questRepository.save(existingQuest);
+            return Optional.of(existingQuest);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
             throw e;
         }
     }
 
-    public void deleteQuest(Quest quest) {
+    public Optional<Quest> deleteQuest(Quest quest) {
         try {
             // Clear relationships to ensure clean deletion
             quest.getQuestParticipants().clear();
             quest.getSubQuestList().clear();
             questRepository.delete(quest);
+            return Optional.of(quest);
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete quest: " + e.getMessage());
         }
@@ -119,5 +122,17 @@ public class QuestService {
 
         // Fetch quests where the user is a participant
         return questRepository.findDistinctByQuestParticipants_FestUserId(user.getId());
+    }
+// Universally Unique Identifier - UUID / Generate a random token for sharing a quest
+    public Quest generateShareToken(Long questId) {
+        Quest quest = questRepository.findById(questId)
+                .orElseThrow(() -> new RuntimeException("Quest not found"));
+        String token = UUID.randomUUID().toString();
+        quest.setShareToken(token);
+        return questRepository.save(quest);
+    }
+
+    public Optional<Quest> findByShareToken(String shareToken) {
+        return questRepository.findByShareToken(shareToken);
     }
 }

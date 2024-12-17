@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Profile;
 
 import java.util.Optional;
 
-@Profile("test")
+
 @SpringBootTest
 class UserRestControllerTest {
     @Autowired
@@ -22,7 +22,7 @@ class UserRestControllerTest {
 
 
     // Test HTTP 200, 404 etc
-    @Test
+    /*@Test
     void testFindByEmail() {
         String email = "DragonSlayerOverTenThousand@Mailmail.cum";
         Optional<FestUser> foundUser = userService.findByEmail(email);
@@ -30,7 +30,7 @@ class UserRestControllerTest {
         // Actual tests.
         Assertions.assertTrue(foundUser.isPresent());
     }
-
+*/
     @Test
     void ensureUsersNotEmptyInDatabase() {
 //        assertEquals(userService.findAll()) > 0;

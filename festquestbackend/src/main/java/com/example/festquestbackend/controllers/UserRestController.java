@@ -1,16 +1,22 @@
 package com.example.festquestbackend.controllers;
 
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.example.festquestbackend.models.users.FestUser;
 import com.example.festquestbackend.services.FestUserService;
 import com.example.festquestbackend.util.JwtUtil;
 import com.example.festquestbackend.util.PasswordEncoder;
+
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500", "http://localhost:63342"})
@@ -26,8 +32,7 @@ public class UserRestController {
     }
 
     @GetMapping("/user/{id}") // TODO User or Users here?
-    public ResponseEntity<FestUser> getUser(@RequestParam long id) {
-        return festUserService.findById(id)
+    public ResponseEntity<FestUser> getUser(@RequestParam long id) {        return festUserService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

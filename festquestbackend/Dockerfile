@@ -5,7 +5,7 @@ FROM openjdk:21-jdk-slim
 WORKDIR /app
 
 # Copy the JAR file into the container
-COPY target/*.jar /app/backend.jar
+COPY *.jar /app/backend.jar
 
 # Expose the port your Spring Boot application runs on
 EXPOSE 8080
