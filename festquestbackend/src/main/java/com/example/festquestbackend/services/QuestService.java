@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -119,5 +120,17 @@ public class QuestService {
 
         // Fetch quests where the user is a participant
         return questRepository.findDistinctByQuestParticipants_FestUserId(user.getId());
+    }
+// Universally Unique Identifier - UUID / Generate a random token for sharing a quest
+    public Quest generateShareToken(Long questId) {
+        Quest quest = questRepository.findById(questId)
+                .orElseThrow(() -> new RuntimeException("Quest not found"));
+        String token = UUID.randomUUID().toString();
+        quest.setShareToken(token);
+        return questRepository.save(quest);
+    }
+
+    public Optional<Quest> findByShareToken(String shareToken) {
+        return questRepository.findByShareToken(shareToken);
     }
 }
