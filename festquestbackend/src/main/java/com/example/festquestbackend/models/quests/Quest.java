@@ -27,7 +27,7 @@ public class Quest {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition="TEXT")
     private String description;
 
     @Column(nullable = false, length = 1000)
@@ -38,6 +38,9 @@ public class Quest {
 
     @Column(nullable = false)
     private LocalDateTime endTime;
+
+    @Column(unique = true)
+    private String shareToken;
 
     @OneToMany(mappedBy = "quest", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // Placed on the parent (Includes the child on serialization)
@@ -123,6 +126,14 @@ public class Quest {
 
     public void setSubQuestList(List<SubQuest> subQuestList) {
         this.subQuestList = subQuestList;
+    }
+
+    public String getShareToken() {
+        return shareToken;
+    }
+
+    public void setShareToken(String shareToken) {
+        this.shareToken = shareToken;
     }
 
 }
