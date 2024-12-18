@@ -2,9 +2,11 @@ package com.example.festquestbackend.services;
 
 import com.example.festquestbackend.models.quests.SubQuest;
 import com.example.festquestbackend.repositories.quests.SubQuestRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SubQuestService {
@@ -16,11 +18,15 @@ public class SubQuestService {
         this.questService = questService;
     }
 
-    public List<SubQuest> findSubQuestsByQuestId(long questId) {
+    public Optional<List<SubQuest>> findSubQuests(long questId) {
         return subQuestRepository.findSubQuestsByQuestId(questId);
     }
 
-    public boolean createSubQuest(Long questId, SubQuest subQuest) {
+    public Optional<SubQuest> findByIdAndQuestId(long subQuestId, long questId) {
+        return subQuestRepository.findByIdAndQuestId(subQuestId, questId);
+    }
+
+    public boolean createSubQuest(long questId, SubQuest subQuest) {
         return questService.findById(questId)
                 .map(quest -> {
                     subQuest.setQuest(quest);
@@ -30,17 +36,20 @@ public class SubQuestService {
                 .orElse(false);
     }
 
-    public boolean updateSubQuest(long subQuestId, SubQuest updatedSubQuest) {
-        return subQuestRepository.findById(subQuestId)
-                .map(subQuest -> {
-                    subQuestRepository.save(updatedSubQuest);
+    public boolean updateSubQuest(long subQuestId, long questId, SubQuest updatedSubQuest) {
+        return subQuestRepository.findByIdAndQuestId(subQuestId, questId)
+                .map(existingSubquest -> {
+                    BeanUtils.copyProperties(updatedSubQuest, existingSubquest, "id", "quest", "dutyList");
+                    existingSubquest.setTitle(updatedSubQuest.getTitle());
+                    existingSubquest.setBudget(updatedSubQuest.getBudget());
+                    subQuestRepository.save(existingSubquest);
                     return true;
                 })
                 .orElse(false);
     }
 
-    public boolean deleteSubQuest(long subQuestId) {
-        return subQuestRepository.findById(subQuestId)
+    public boolean deleteSubQuest(long subQuestId, long questId) {
+        return subQuestRepository.findByIdAndQuestId(subQuestId, questId)
                 .map(ignored -> {
                     subQuestRepository.deleteById(subQuestId);
                     return true;
