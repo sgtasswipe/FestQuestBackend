@@ -5,8 +5,10 @@ import com.example.festquestbackend.models.quests.SubQuest;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SubQuestRepository extends JpaRepository<SubQuest,Long > {
-    List<SubQuest> findSubQuestsByQuestId(long questId);
+    Optional<List<SubQuest>> findSubQuestsByQuestId(long questId);
+    Optional<SubQuest> findByIdAndQuestId(long subQuestId, long questId);
 }
