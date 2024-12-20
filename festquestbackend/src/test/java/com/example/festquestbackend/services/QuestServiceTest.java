@@ -23,7 +23,7 @@ class QuestServiceTest {
     // TESTS FOR DATE VALIDATION //
     @Test
     public void testCorrectDatesNotThrowsFromDb() {
-        Quest quest = questService.findById(1).get();
+        Quest quest = questService.findById(13).get();
         assertDoesNotThrow(() -> questService.validateQuestDates(quest));
     }
 
