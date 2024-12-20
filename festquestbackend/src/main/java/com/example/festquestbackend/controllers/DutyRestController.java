@@ -41,29 +41,29 @@ public class DutyRestController {
     }
 
     @PostMapping("/duty")
-    public ResponseEntity<Object> createDuty(@PathVariable long questId, @PathVariable long subQuestId, @RequestBody Duty duty, @RequestHeader("Authorization") String authorizationHeader) {
+    public Optional<ResponseEntity<Duty>> createDuty(@PathVariable long questId, @PathVariable long subQuestId, @RequestBody Duty duty, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .filter(ignored -> roleService.validateAuthorization(authorizationHeader, questId, RoleService.MEMBER))
-                .map(ignored -> dutyService.createDuty(subQuestId, questId, duty))
-                .map(isCreated -> isCreated ? ResponseEntity.status(HttpStatus.CREATED).build() : ResponseEntity.notFound().build())
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+                .flatMap(ignored -> dutyService.createDuty(subQuestId, questId, duty)
+                .map(ResponseEntity::ok))
+                .or(() -> Optional.of(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(duty)));
     }
 
     @PutMapping("/duty/{dutyId}")
-    public ResponseEntity<Object> updateDuty(@PathVariable long questId, @PathVariable long subQuestId, @PathVariable long dutyId, @RequestBody Duty updatedDuty, @RequestHeader("Authorization") String authorizationHeader) {
+    public Optional<ResponseEntity<Duty>> updateDuty(@PathVariable long questId, @PathVariable long subQuestId, @PathVariable long dutyId, @RequestBody Duty updatedDuty, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .filter(ignored -> roleService.validateAuthorization(authorizationHeader, questId, RoleService.MEMBER))
-                .map(ignored -> dutyService.updateDuty(dutyId, subQuestId, questId, updatedDuty))
-                .map(isUpdated -> isUpdated ? ResponseEntity.ok().build() : ResponseEntity.notFound().build())
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+                .flatMap(ignored -> dutyService.updateDuty(dutyId, subQuestId, questId, updatedDuty)
+                .map(ResponseEntity::ok))
+                .or(() -> Optional.of(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(updatedDuty)));
     }
 
     @DeleteMapping("/duty/{dutyId}")
-    public ResponseEntity<Object> deleteDuty(@PathVariable long questId, @PathVariable long subQuestId, @PathVariable long dutyId, @RequestHeader("Authorization") String authorizationHeader) {
+    public Optional<ResponseEntity<Duty>> deleteDuty(@PathVariable long questId, @PathVariable long subQuestId, @PathVariable long dutyId, @RequestHeader("Authorization") String authorizationHeader) {
         return Optional.of(authorizationHeader)
                 .filter(ignored -> roleService.validateAuthorization(authorizationHeader, questId, RoleService.MEMBER))
-                .map(ignored -> dutyService.deleteDuty(dutyId, subQuestId, questId))
-                .map(isDeleted -> isDeleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build())
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+                .flatMap(ignored -> dutyService.deleteDuty(dutyId, subQuestId, questId)
+                .map(ResponseEntity::ok))
+                .or(() -> Optional.of(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null)));
     }
 }

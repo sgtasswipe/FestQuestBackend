@@ -26,34 +26,31 @@ public class SubQuestService {
         return subQuestRepository.findByIdAndQuestId(subQuestId, questId);
     }
 
-    public boolean createSubQuest(long questId, SubQuest subQuest) {
+    public Optional<SubQuest> createSubQuest(long questId, SubQuest subQuest) {
         return questService.findById(questId)
                 .map(quest -> {
                     subQuest.setQuest(quest);
                     subQuestRepository.save(subQuest);
-                    return true;
-                })
-                .orElse(false);
+                    return subQuest;
+                });
     }
 
-    public boolean updateSubQuest(long subQuestId, long questId, SubQuest updatedSubQuest) {
+    public Optional<SubQuest> updateSubQuest(long subQuestId, long questId, SubQuest updatedSubQuest) {
         return subQuestRepository.findByIdAndQuestId(subQuestId, questId)
                 .map(existingSubquest -> {
                     BeanUtils.copyProperties(updatedSubQuest, existingSubquest, "id", "quest", "dutyList");
                     existingSubquest.setTitle(updatedSubQuest.getTitle());
                     existingSubquest.setBudget(updatedSubQuest.getBudget());
                     subQuestRepository.save(existingSubquest);
-                    return true;
-                })
-                .orElse(false);
+                    return existingSubquest;
+                });
     }
 
-    public boolean deleteSubQuest(long subQuestId, long questId) {
+    public Optional<SubQuest> deleteSubQuest(long subQuestId, long questId) {
         return subQuestRepository.findByIdAndQuestId(subQuestId, questId)
-                .map(ignored -> {
+                .map(subQuest -> {
                     subQuestRepository.deleteById(subQuestId);
-                    return true;
-                })
-                .orElse(false);
+                    return subQuest;
+                });
     }
 }

@@ -29,34 +29,31 @@ public class DutyService {
                 .flatMap(ignored -> dutyRepository.findByIdAndSubQuestId(dutyId, subQuestId));
     }
 
-    public boolean createDuty(long subQuestId, long questId, Duty duty) {
+    public Optional<Duty> createDuty(long subQuestId, long questId, Duty duty) {
         return subQuestService.findByIdAndQuestId(subQuestId, questId)
                 .map(subQuest -> {
                     duty.setSubQuest(subQuest);
                     dutyRepository.save(duty);
-                    return true;
-                })
-                .orElse(false);
+                    return duty;
+                });
     }
 
-    public boolean updateDuty(long dutyId, long subQuestId, long questId, Duty updatedDuty) {
+    public Optional<Duty> updateDuty(long dutyId, long subQuestId, long questId, Duty updatedDuty) {
         return findByIdAndSubQuestIdAndQuestId(dutyId, subQuestId, questId)
                 .map(existingDuty -> {
                     BeanUtils.copyProperties(updatedDuty, existingDuty, "id", "subQuest");
                     existingDuty.setTitle(updatedDuty.getTitle());
                     existingDuty.setPrice(updatedDuty.getPrice());
                     dutyRepository.save(existingDuty);
-                    return true;
-                })
-                .orElse(false);
+                    return existingDuty;
+                });
     }
 
-    public boolean deleteDuty(long dutyId, long subQuestId, long questId) {
+    public Optional<Duty> deleteDuty(long dutyId, long subQuestId, long questId) {
         return findByIdAndSubQuestIdAndQuestId(dutyId, subQuestId, questId)
-                .map(ignored -> {
+                .map(subQuest -> {
                     dutyRepository.deleteById(dutyId);
-                    return true;
-                })
-                .orElse(false);
+                    return subQuest;
+                });
     }
 }
